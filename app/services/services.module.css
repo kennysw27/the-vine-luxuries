@@ -1,0 +1,108 @@
+.hero {
+  padding: 12rem 0 6rem 0;
+  background-image: linear-gradient(to bottom, rgba(5, 6, 8, 0.9), rgba(5, 6, 8, 0.98)), url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2000&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  color: var(--color-white);
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+
+.heroDivider {
+  width: 60px;
+  height: 2px;
+  background: var(--color-gold-gradient);
+  margin: 0 auto 2rem auto;
+}
+
+.heroSubtitle {
+  font-size: 1.1rem;
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+.contentSection {
+  background: var(--color-cream);
+  position: relative;
+  z-index: 5;
+}
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-left: 1px solid rgba(0,0,0,0.05);
+  border-right: 1px solid rgba(0,0,0,0.05);
+}
+
+.serviceCard {
+  padding: 8rem 3rem 4rem 3rem;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.5s ease;
+  position: relative;
+  overflow: hidden;
+  color: var(--color-white);
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.serviceCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to top, rgba(5,6,8,0.95) 0%, rgba(5,6,8,0.2) 100%);
+  z-index: 1;
+  transition: all 0.5s ease;
+}
+
+.serviceCard:nth-child(3n) {
+  border-right: none;
+}
+
+.serviceCard:hover::before {
+  background: linear-gradient(to top, rgba(5,6,8,0.95) 0%, rgba(5,6,8,0.5) 100%);
+}
+
+.serviceContent {
+  position: relative;
+  z-index: 2;
+}
+
+.serviceTitle {
+  font-size: 1.8rem;
+  color: var(--color-gold-400);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.serviceDesc {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 900px) {
+  .servicesGrid {
+    grid-template-columns: 1fr;
+    border: none;
+  }
+  .serviceCard {
+    border-right: none;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+}
