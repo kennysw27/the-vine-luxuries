@@ -1,65 +1,90 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { Crown, Building2, Users, Mouse, ChevronDown, Car, CalendarDays, Flower2 } from 'lucide-react';
+import styles from './page.module.css';
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <section className={styles.hero}>
+        <div className="container">
+          <div className={`${styles.heroContent} animate-fade-up`}>
+            <h1 className={styles.heroTitle}>ELEVATING<br />EVERY ENTRY</h1>
+            <p className={styles.heroSubtitle}>
+              Experience the pinnacle of luxury living with personalized, bespoke concierge services and an unprecedented level of care at your doorstep.
+            </p>
+            <div className={styles.heroButtonGroup}>
+              <Link href="/services" className="btn-primary" style={{ padding: '1rem 2.5rem' }}>
+                <span>Explore Services</span>
+              </Link>
+              <Link href="/contact" className="btn-outline" style={{ padding: '1rem 2.5rem' }}>
+                Request a Booking
+              </Link>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className={styles.scrollIndicator}>
+          <Mouse size={24} strokeWidth={1} />
+          <ChevronDown size={16} />
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className={styles.amenitiesSection}>
+        <div className="container">
+          <div className={styles.amenitiesGrid}>
+            <div className={styles.amenityCard}>
+              <div className={styles.amenityIcon}><Car size={40} strokeWidth={1} /></div>
+              <h3 className={styles.amenityTitle}>24/7 Valet & Parking</h3>
+              <p className={styles.amenityDesc}>Experience the pinnacle of luxury living with personalized, bespoke concierge services right at your door.</p>
+            </div>
+            <div className={styles.amenityCard}>
+              <div className={styles.amenityIcon}><CalendarDays size={40} strokeWidth={1} /></div>
+              <h3 className={styles.amenityTitle}>Private Events & Bookings</h3>
+              <p className={styles.amenityDesc}>Experience the pinnacle of luxury living with personalized, bespoke concierge services and an unprecedented.</p>
+            </div>
+            <div className={styles.amenityCard}>
+              <div className={styles.amenityIcon}><Flower2 size={40} strokeWidth={1} /></div>
+              <h3 className={styles.amenityTitle}>Wellness & Spa Access</h3>
+              <p className={styles.amenityDesc}>Wellness in a state of the art facility, ensuring an exceptional wellness and apartment lifestyle.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.sectionDark}>
+        <div className="container">
+          <h2 className={`${styles.sectionTitle} animate-fade-up`}>Our Premium Services</h2>
+          <div className={styles.servicesGrid}>
+            <div className={`${styles.serviceCard} animate-fade-up`} style={{ animationDelay: '0.1s' }}>
+              <div className={styles.serviceIcon}><Users size={40} strokeWidth={1.5} /></div>
+              <h3 className={styles.serviceTitle}>Resident Relations</h3>
+              <p className={styles.serviceDesc}>Personalized assistance, package management, and daily warm greetings that make every resident feel truly at home.</p>
+            </div>
+            <div className={`${styles.serviceCard} animate-fade-up`} style={{ animationDelay: '0.2s' }}>
+              <div className={styles.serviceIcon}><Building2 size={40} strokeWidth={1.5} /></div>
+              <h3 className={styles.serviceTitle}>Visitor Management</h3>
+              <p className={styles.serviceDesc}>Digital visitor logs, vendor coordination, and seamless access control ensuring safety without compromising hospitality.</p>
+            </div>
+            <div className={`${styles.serviceCard} animate-fade-up`} style={{ animationDelay: '0.3s' }}>
+              <div className={styles.serviceIcon}><Crown size={40} strokeWidth={1.5} /></div>
+              <h3 className={styles.serviceTitle}>Brand Representation</h3>
+              <p className={styles.serviceDesc}>Immaculate uniforms, polished communication, and concierge staff acting as the true ambassadors of your building's prestige.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.ctaSection}>
+        <div className="container">
+          <div className={`${styles.ctaBox} animate-fade-up`}>
+            <h2 className={styles.ctaTitle}>Ready to Elevate Your Property?</h2>
+            <Link href="/contact" className="btn-primary">
+              <span>Request a Consultation</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
