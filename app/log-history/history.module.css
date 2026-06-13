@@ -56,3 +56,71 @@
   width: 100%;
   max-width: 400px;
 }
+
+.actionBtn {
+  background: transparent;
+  border: 1px solid var(--color-gray-border);
+  padding: 0.4rem 0.8rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  background: var(--color-navy-950);
+  color: var(--color-white);
+  border-color: var(--color-navy-950);
+}
+
+.deleteBtn:hover {
+  background: #cc0000;
+  color: white;
+  border-color: #cc0000;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: var(--color-white);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-premium);
+}
+
+.modalHeader {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--color-gray-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-cream);
+}
+
+.modalBody {
+  padding: 2rem;
+}
+
+.modalFooter {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--color-gray-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  background: var(--color-cream);
+}

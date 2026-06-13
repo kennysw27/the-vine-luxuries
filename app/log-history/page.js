@@ -12,6 +12,19 @@ export default function LogHistoryPage() {
   const [logs, setLogs] = useState([]);
   const [filters, setFilters] = useState({ visitorName: '', visitType: '' });
 
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [currentLogId, setCurrentLogId] = useState(null);
+  const [formData, setFormData] = useState({
+    dateTime: '',
+    unitNumber: '',
+    visitorName: '',
+    visitType: 'Guest',
+    conciergeName: '',
+    comments: ''
+  });
+
   const fetchLogs = async (query = '') => {
     try {
       const res = await fetch(`/api/logs${query}`);
@@ -102,6 +115,91 @@ export default function LogHistoryPage() {
     doc.save("Vine_Luxuries_Logs.pdf");
   };
 
+  // CRUD Operations
+  const openModal = (mode, log = null) => {
+    setModalMode(mode);
+    if (mode === 'edit' && log) {
+      setCurrentLogId(log.id);
+      // Format datetime-local string
+      const dateObj = new Date(log.dateTime);
+      dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+      const localDateTime = dateObj.toISOString().slice(0, 16);
+
+      setFormData({
+        dateTime: localDateTime,
+        unitNumber: log.unitNumber,
+        visitorName: log.visitorName,
+        visitType: log.visitType,
+        conciergeName: log.conciergeName,
+        comments: log.comments || ''
+      });
+    } else {
+      setCurrentLogId(null);
+      
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      
+      setFormData({
+        dateTime: now.toISOString().slice(0, 16),
+        unitNumber: '',
+        visitorName: '',
+        visitType: 'Guest',
+        conciergeName: '',
+        comments: ''
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      const url = modalMode === 'add' ? '/api/logs' : `/api/logs/${currentLogId}`;
+      const method = modalMode === 'add' ? 'POST' : 'PUT';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (res.ok) {
+        closeModal();
+        fetchLogs();
+      } else {
+        alert("Failed to save log");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error saving log");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this log entry? This cannot be undone.")) {
+      try {
+        const res = await fetch(`/api/logs/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          fetchLogs();
+        } else {
+          alert("Failed to delete log");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error deleting log");
+      }
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className={styles.pageWrapper}>
@@ -133,6 +231,7 @@ export default function LogHistoryPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Log History</h1>
           <div className={styles.actions}>
+            <button onClick={() => openModal('add')} className="btn-primary" style={{ padding: '0.8rem 1.5rem' }}>+ Add Log</button>
             <button onClick={exportCSV} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export CSV</button>
             <button onClick={exportPDF} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export PDF</button>
           </div>
@@ -170,6 +269,7 @@ export default function LogHistoryPage() {
                 <th>Type of Visit</th>
                 <th>Concierge Name</th>
                 <th>Comments/Notes</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -181,17 +281,81 @@ export default function LogHistoryPage() {
                   <td>{log.visitType}</td>
                   <td>{log.conciergeName}</td>
                   <td>{log.comments || '-'}</td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <button onClick={() => openModal('edit', log)} className={styles.actionBtn}>Edit</button>
+                    <button onClick={() => handleDelete(log.id)} className={`${styles.actionBtn} ${styles.deleteBtn}`}>Delete</button>
+                  </td>
                 </tr>
               ))}
               {logs.length === 0 && (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No log entries found.</td>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No log entries found.</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* CRUD Modal */}
+      {isModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', fontWeight: 500 }}>
+                {modalMode === 'add' ? 'Add New Log' : 'Edit Log Entry'}
+              </h2>
+              <button onClick={closeModal} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            </div>
+            
+            <form onSubmit={handleSave}>
+              <div className={styles.modalBody}>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Date & Time</label>
+                  <input type="datetime-local" name="dateTime" className="form-input" value={formData.dateTime} onChange={handleFormChange} required style={{ padding: '0.5rem 0' }} />
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Unit Number</label>
+                    <input type="text" name="unitNumber" className="form-input" value={formData.unitNumber} onChange={handleFormChange} required style={{ padding: '0.5rem 0' }} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">Visit Type</label>
+                    <select name="visitType" className="form-select" value={formData.visitType} onChange={handleFormChange} required style={{ padding: '0.5rem 0' }}>
+                      <option value="Delivery">Delivery</option>
+                      <option value="Guest">Guest</option>
+                      <option value="Vendor">Vendor</option>
+                      <option value="Contractor">Contractor</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Visitor/Vendor Name</label>
+                  <input type="text" name="visitorName" className="form-input" value={formData.visitorName} onChange={handleFormChange} required style={{ padding: '0.5rem 0' }} />
+                </div>
+                
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Concierge Name</label>
+                  <input type="text" name="conciergeName" className="form-input" value={formData.conciergeName} onChange={handleFormChange} required style={{ padding: '0.5rem 0' }} />
+                </div>
+                
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Comments / Notes (Optional)</label>
+                  <textarea name="comments" className="form-textarea" value={formData.comments} onChange={handleFormChange} style={{ minHeight: '60px', padding: '0.5rem 0' }}></textarea>
+                </div>
+              </div>
+              
+              <div className={styles.modalFooter}>
+                <button type="button" onClick={closeModal} className="btn-secondary" style={{ padding: '0.6rem 1.5rem' }}>Cancel</button>
+                <button type="submit" className="btn-primary" style={{ padding: '0.6rem 1.5rem' }}>{modalMode === 'add' ? 'Save Log' : 'Update Log'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
