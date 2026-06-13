@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import styles from './Navbar.module.css';
 
 export function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +19,11 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
+  // Close menu when route changes
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   // Pages with dark hero sections where text needs to be white initially
   const isDarkBg = pathname === '/' || pathname === '/about' || pathname === '/services';
   
@@ -24,48 +31,40 @@ export function Navbar() {
   const linkColor = (isDarkBg && !scrolled) ? 'var(--color-white)' : 'var(--color-navy-900)';
   
   const navBackground = scrolled ? 'var(--color-cream)' : (isDarkBg ? 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)' : 'transparent');
-  const paddingY = scrolled ? '1rem 0' : '2rem 0';
+  const paddingY = scrolled ? '1rem 0' : '1.5rem 0';
   const shadow = scrolled ? '0 10px 30px rgba(0,0,0,0.05)' : 'none';
 
   return (
-    <nav style={{ 
-      position: 'fixed', 
-      top: 0, 
-      width: '100%', 
-      zIndex: 100, 
+    <nav className={styles.navbar} style={{ 
       padding: paddingY,
       background: navBackground,
       boxShadow: shadow,
-      transition: 'all 0.4s ease'
     }}>
-      <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-        <Link href="/" style={{ fontFamily: 'var(--font-heading)', fontSize: '2.2rem', fontWeight: 500, color: textColor, textDecoration: 'none', textAlign: 'center', letterSpacing: '0.1em' }}>
+      <div className={`container ${styles.container}`}>
+        <Link href="/" className={styles.logo} style={{ color: textColor }}>
           THE VINE<br/>
-          <span style={{ fontSize: '0.65rem', letterSpacing: '0.4em', fontWeight: 400, display: 'block', marginTop: '0.4rem' }} className="text-gold">
+          <span className={`${styles.logoSubtitle} text-gold`}>
             LUXURIES
           </span>
         </Link>
         
-        <div style={{ display: 'flex', gap: '3rem', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <Link href="/" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Home</Link>
-          <Link href="/about" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>About</Link>
-          <Link href="/services" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Services</Link>
-          <Link href="/digital-log" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Visitor Log</Link>
-          <Link href="/log-history" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Admin</Link>
-          <Link href="/contact" style={{ 
-            fontSize: '0.85rem', 
-            fontWeight: 700,
-            textTransform: 'uppercase', 
-            letterSpacing: '0.1em', 
-            color: 'var(--color-navy-950)',
-            background: 'var(--color-gold-gradient)',
-            border: 'none',
-            padding: '0.6rem 1.4rem',
-            borderRadius: '2px',
-            transition: 'all 0.3s ease',
-            marginLeft: '1rem',
-            boxShadow: '0 4px 15px rgba(168, 131, 50, 0.4)'
-          }}>Contact</Link>
+        <button 
+          className={`${styles.hamburger} ${menuOpen ? styles.open : ''}`}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle Menu"
+        >
+          <span className={styles.hamburgerLine} style={{ background: textColor }}></span>
+          <span className={styles.hamburgerLine} style={{ background: textColor }}></span>
+          <span className={styles.hamburgerLine} style={{ background: textColor }}></span>
+        </button>
+
+        <div className={`${styles.navLinks} ${menuOpen ? styles.open : ''}`}>
+          <Link href="/" className={styles.navLink} style={{ color: linkColor }}>Home</Link>
+          <Link href="/about" className={styles.navLink} style={{ color: linkColor }}>About</Link>
+          <Link href="/services" className={styles.navLink} style={{ color: linkColor }}>Services</Link>
+          <Link href="/digital-log" className={styles.navLink} style={{ color: linkColor }}>Visitor Log</Link>
+          <Link href="/log-history" className={styles.navLink} style={{ color: linkColor }}>Admin</Link>
+          <Link href="/contact" className={`${styles.navLink} ${styles.contactBtn}`}>Contact</Link>
         </div>
       </div>
     </nav>

@@ -85,3 +85,20 @@
   font-size: 0.95rem;
   line-height: 1.6;
 }
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 8rem 0 4rem 0;
+  }
+  .contentSection {
+    padding: 4rem 0;
+  }
+  .valuesGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .valueCard {
+    padding: 2rem;
+  }
+}

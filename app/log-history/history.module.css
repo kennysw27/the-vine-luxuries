@@ -124,3 +124,43 @@
   gap: 1rem;
   background: var(--color-cream);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .pageWrapper {
+    padding: 8rem 0 4rem 0;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .actions button {
+    width: 100%;
+  }
+  
+  .filters {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  
+  .filters input, .filters select {
+    width: 100% !important;
+  }
+  
+  .tableWrapper {
+    padding: 1rem;
+  }
+  
+  .modalContent {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}

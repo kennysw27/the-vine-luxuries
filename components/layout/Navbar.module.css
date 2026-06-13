@@ -1,0 +1,141 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  transition: all 0.4s ease;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Change to space-between to push hamburger to right */
+  gap: 1.5rem;
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  letter-spacing: 0.1em;
+  transition: color 0.3s ease;
+}
+
+.logoSubtitle {
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  font-weight: 400;
+  display: block;
+  margin-top: 0.4rem;
+}
+
+.navLinks {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+}
+
+.navLink {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: opacity 0.3s ease;
+}
+
+.navLink:hover {
+  opacity: 0.7;
+}
+
+.contactBtn {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-navy-950) !important;
+  background: var(--color-gold-gradient);
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  margin-left: 1rem;
+  box-shadow: 0 4px 15px rgba(168, 131, 50, 0.4);
+}
+
+.contactBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 131, 50, 0.6);
+}
+
+.hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 101;
+  padding: 0.5rem;
+}
+
+.hamburgerLine {
+  display: block;
+  width: 25px;
+  height: 2px;
+  margin: 5px 0;
+  transition: all 0.3s ease;
+}
+
+/* Mobile Menu Styles */
+@media (max-width: 900px) {
+  .hamburger {
+    display: block;
+  }
+
+  .navLinks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 6, 8, 0.95);
+    backdrop-filter: blur(15px);
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .navLinks.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .navLink {
+    color: var(--color-white) !important;
+    font-size: 1.2rem;
+  }
+
+  .contactBtn {
+    margin-left: 0;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+  }
+
+  /* Hamburger Animation */
+  .hamburger.open .hamburgerLine:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+    background: var(--color-white) !important;
+  }
+  
+  .hamburger.open .hamburgerLine:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .hamburger.open .hamburgerLine:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+    background: var(--color-white) !important;
+  }
+}
