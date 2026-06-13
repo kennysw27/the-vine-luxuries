@@ -36,17 +36,17 @@ export default function HomePage() {
             <div className={styles.amenityCard}>
               <div className={styles.amenityIcon}><Car size={40} strokeWidth={1} /></div>
               <h3 className={styles.amenityTitle}>24/7 Valet & Parking</h3>
-              <p className={styles.amenityDesc}>Experience the pinnacle of luxury living with personalized, bespoke concierge services right at your door.</p>
+              <p className={styles.amenityDesc}>Seamless vehicle retrieval and secure parking management, ensuring every departure and arrival is completely effortless.</p>
             </div>
             <div className={styles.amenityCard}>
               <div className={styles.amenityIcon}><CalendarDays size={40} strokeWidth={1} /></div>
               <h3 className={styles.amenityTitle}>Private Events & Bookings</h3>
-              <p className={styles.amenityDesc}>Experience the pinnacle of luxury living with personalized, bespoke concierge services and an unprecedented.</p>
+              <p className={styles.amenityDesc}>Exclusive coordination for resident gatherings, private dining, and effortless reservations at the city's finest venues.</p>
             </div>
             <div className={styles.amenityCard}>
               <div className={styles.amenityIcon}><Flower2 size={40} strokeWidth={1} /></div>
               <h3 className={styles.amenityTitle}>Wellness & Spa Access</h3>
-              <p className={styles.amenityDesc}>Wellness in a state of the art facility, ensuring an exceptional wellness and apartment lifestyle.</p>
+              <p className={styles.amenityDesc}>Discreet scheduling and privileged access to on-site wellness facilities, maintaining an atmosphere of ultimate relaxation.</p>
             </div>
           </div>
         </div>
