@@ -54,14 +54,17 @@ export function Navbar() {
           <Link href="/log-history" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Admin</Link>
           <Link href="/contact" style={{ 
             fontSize: '0.85rem', 
-            fontWeight: 600,
+            fontWeight: 700,
             textTransform: 'uppercase', 
             letterSpacing: '0.1em', 
-            color: 'var(--color-gold-500)',
-            border: '1px solid var(--color-gold-500)',
-            padding: '0.6rem 1.2rem',
+            color: 'var(--color-navy-950)',
+            background: 'var(--color-gold-gradient)',
+            border: 'none',
+            padding: '0.6rem 1.4rem',
+            borderRadius: '2px',
             transition: 'all 0.3s ease',
-            marginLeft: '1rem'
+            marginLeft: '1rem',
+            boxShadow: '0 4px 15px rgba(168, 131, 50, 0.4)'
           }}>Contact</Link>
         </div>
       </div>
