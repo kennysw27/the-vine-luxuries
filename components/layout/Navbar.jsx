@@ -21,7 +21,7 @@ export function Navbar() {
   const isDarkBg = pathname === '/' || pathname === '/about' || pathname === '/services';
   
   const textColor = (isDarkBg && !scrolled) ? 'var(--color-white)' : 'var(--color-navy-950)';
-  const linkColor = (isDarkBg && !scrolled) ? 'rgba(255, 255, 255, 0.8)' : 'var(--color-navy-900)';
+  const linkColor = (isDarkBg && !scrolled) ? 'var(--color-white)' : 'var(--color-navy-900)';
   
   const navBackground = scrolled ? 'var(--color-cream)' : (isDarkBg ? 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)' : 'transparent');
   const paddingY = scrolled ? '1rem 0' : '2rem 0';
@@ -47,13 +47,14 @@ export function Navbar() {
         </Link>
         
         <div style={{ display: 'flex', gap: '3rem', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <Link href="/" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Home</Link>
-          <Link href="/about" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>About</Link>
-          <Link href="/services" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Services</Link>
-          <Link href="/digital-log" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Visitor Log</Link>
-          <Link href="/log-history" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Admin</Link>
+          <Link href="/" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Home</Link>
+          <Link href="/about" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>About</Link>
+          <Link href="/services" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Services</Link>
+          <Link href="/digital-log" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Visitor Log</Link>
+          <Link href="/log-history" style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: linkColor }}>Admin</Link>
           <Link href="/contact" style={{ 
-            fontSize: '0.75rem', 
+            fontSize: '0.85rem', 
+            fontWeight: 600,
             textTransform: 'uppercase', 
             letterSpacing: '0.1em', 
             color: 'var(--color-gold-500)',
