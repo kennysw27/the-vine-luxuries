@@ -32,7 +32,7 @@
 }
 
 .contentSection {
-  background: var(--color-cream);
+  background: var(--color-navy-950);
   position: relative;
   z-index: 5;
 }
