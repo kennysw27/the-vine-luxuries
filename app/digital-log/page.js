@@ -15,6 +15,17 @@ export default function DigitalLogPage() {
   });
   const [successMsg, setSuccessMsg] = useState('');
   const [currentDateTime, setCurrentDateTime] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (sessionStorage.getItem("vine_admin_auth") !== "true") {
+        window.location.href = '/log-history';
+      } else {
+        setIsAuthenticated(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -54,6 +65,8 @@ export default function DigitalLogPage() {
       alert('Error saving log. Please try again.');
     }
   };
+
+  if (!isAuthenticated) return null;
 
   return (
     <main className={styles.pageWrapper}>

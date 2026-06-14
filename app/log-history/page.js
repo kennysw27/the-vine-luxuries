@@ -267,6 +267,7 @@ export default function LogHistoryPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Log History</h1>
           <div className={styles.actions}>
+            <button onClick={() => window.location.href='/digital-log'} className="btn-primary" style={{ padding: '0.8rem 1.5rem', background: 'var(--color-navy-950)', color: 'white', border: '1px solid var(--color-navy-950)', marginRight: 'auto' }}>Open Visitor Log</button>
             <button onClick={() => openModal('add')} className="btn-primary" style={{ padding: '0.8rem 1.5rem' }}>+ Add Log</button>
             <button onClick={exportCSV} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export CSV</button>
             <button onClick={exportPDF} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export PDF</button>
