@@ -42,7 +42,7 @@ export default function ContactPage() {
               </div>
               <div className={styles.contactItem}>
                 <h4>Phone</h4>
-                <p>+1 (800) 555-VINE</p>
+                <p>(972) 863-1618</p>
               </div>
             </div>
           </div>
