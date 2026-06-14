@@ -52,27 +52,27 @@ export default function ContactPage() {
               <div className={styles.formGrid}>
                 
                 <div className={`form-group ${styles.fullWidth}`}>
-                  <label className="form-label">Full Name</label>
+                  <label className="form-label">Full Name *</label>
                   <input type="text" name="name" className="form-input" required />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Email Address</label>
+                  <label className="form-label">Email Address *</label>
                   <input type="email" name="email" className="form-input" required />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Phone Number</label>
+                  <label className="form-label">Phone Number *</label>
                   <input type="tel" name="phone" className="form-input" required />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Property Name</label>
+                  <label className="form-label">Property Name *</label>
                   <input type="text" name="propertyName" className="form-input" required />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Property Type</label>
+                  <label className="form-label">Property Type *</label>
                   <select name="propertyType" className="form-select" required defaultValue="">
                     <option value="" disabled>Select Property Type</option>
                     <option value="Luxury Apartment Complex">Luxury Apartment Complex</option>
@@ -84,7 +84,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className={`form-group ${styles.fullWidth}`}>
-                  <label className="form-label">Message</label>
+                  <label className="form-label">Message *</label>
                   <textarea name="message" className="form-textarea" placeholder="Tell us about your property's needs..." required></textarea>
                 </div>
 
