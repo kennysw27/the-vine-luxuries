@@ -62,8 +62,6 @@ export function Navbar() {
           <Link href="/" className={styles.navLink} style={{ color: linkColor }}>Home</Link>
           <Link href="/about" className={styles.navLink} style={{ color: linkColor }}>About</Link>
           <Link href="/services" className={styles.navLink} style={{ color: linkColor }}>Services</Link>
-          <Link href="/digital-log" className={styles.navLink} style={{ color: linkColor }}>Visitor Log</Link>
-          <Link href="/log-history" className={styles.navLink} style={{ color: linkColor }}>Admin</Link>
           <Link href="/contact" className={`${styles.navLink} ${styles.contactBtn}`}>Contact</Link>
         </div>
       </div>

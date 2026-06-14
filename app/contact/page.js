@@ -3,10 +3,25 @@
 import styles from './contact.module.css';
 
 export default function ContactPage() {
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Thank you for your inquiry. Our team will contact you shortly.");
-    e.target.reset();
+    const formData = new FormData(e.target);
+    
+    try {
+      await fetch("https://formsubmit.co/ajax/Inquiries@thevineluxuries.com", {
+        method: "POST",
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(Object.fromEntries(formData))
+      });
+      alert("Thank you for your inquiry. Our team will contact you shortly.");
+      e.target.reset();
+    } catch(error) {
+      console.error(error);
+      alert("There was an error sending your message. Please try again.");
+    }
   };
 
   return (
@@ -38,27 +53,27 @@ export default function ContactPage() {
                 
                 <div className={`form-group ${styles.fullWidth}`}>
                   <label className="form-label">Full Name</label>
-                  <input type="text" className="form-input" required />
+                  <input type="text" name="name" className="form-input" required />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Email Address</label>
-                  <input type="email" className="form-input" required />
+                  <input type="email" name="email" className="form-input" required />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Phone Number</label>
-                  <input type="tel" className="form-input" required />
+                  <input type="tel" name="phone" className="form-input" required />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Property Name</label>
-                  <input type="text" className="form-input" required />
+                  <input type="text" name="propertyName" className="form-input" required />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Property Type</label>
-                  <select className="form-select" required defaultValue="">
+                  <select name="propertyType" className="form-select" required defaultValue="">
                     <option value="" disabled>Select Property Type</option>
                     <option value="Luxury Apartment Complex">Luxury Apartment Complex</option>
                     <option value="High-Rise Condo">High-Rise Condo</option>
@@ -70,7 +85,7 @@ export default function ContactPage() {
 
                 <div className={`form-group ${styles.fullWidth}`}>
                   <label className="form-label">Message</label>
-                  <textarea className="form-textarea" placeholder="Tell us about your property's needs..."></textarea>
+                  <textarea name="message" className="form-textarea" placeholder="Tell us about your property's needs..." required></textarea>
                 </div>
 
               </div>

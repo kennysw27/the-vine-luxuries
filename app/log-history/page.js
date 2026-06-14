@@ -64,6 +64,42 @@ export default function LogHistoryPage() {
     }
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem("vine_admin_auth");
+    setIsAuthenticated(false);
+  };
+
+  // Auto-logout after 10 minutes of inactivity
+  useEffect(() => {
+    let timeoutId;
+    
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      if (isAuthenticated) {
+        timeoutId = setTimeout(() => {
+          handleLogout();
+          alert("You have been automatically logged out due to 10 minutes of inactivity.");
+        }, 10 * 60 * 1000); // 10 minutes
+      }
+    };
+
+    if (isAuthenticated) {
+      window.addEventListener('mousemove', resetTimer);
+      window.addEventListener('keydown', resetTimer);
+      window.addEventListener('click', resetTimer);
+      window.addEventListener('scroll', resetTimer);
+      resetTimer();
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('click', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+    };
+  }, [isAuthenticated]);
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
@@ -234,6 +270,7 @@ export default function LogHistoryPage() {
             <button onClick={() => openModal('add')} className="btn-primary" style={{ padding: '0.8rem 1.5rem' }}>+ Add Log</button>
             <button onClick={exportCSV} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export CSV</button>
             <button onClick={exportPDF} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export PDF</button>
+            <button onClick={handleLogout} className="btn-secondary" style={{ padding: '0.8rem 1.5rem', background: '#333', color: 'white', border: 'none' }}>Logout</button>
           </div>
         </div>
 
