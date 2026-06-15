@@ -78,6 +78,7 @@
 .serviceContent {
   position: relative;
   z-index: 2;
+  min-height: 14rem;
 }
 
 .serviceTitle {
