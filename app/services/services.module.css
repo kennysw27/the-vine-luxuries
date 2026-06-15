@@ -82,12 +82,12 @@
 }
 
 .serviceTitle {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: var(--color-gold-400);
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  min-height: 5rem;
+  min-height: 4rem;
   display: flex;
   align-items: flex-start;
 }
