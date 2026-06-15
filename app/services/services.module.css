@@ -89,7 +89,7 @@
   letter-spacing: 0.05em;
   min-height: 5rem;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 .serviceDesc {
