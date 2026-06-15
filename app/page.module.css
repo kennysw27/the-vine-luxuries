@@ -79,7 +79,7 @@
 /* Flush Amenities Section */
 .amenitiesSection {
   background-color: var(--color-cream);
-  padding: 5rem 0;
+  padding: 6rem 0;
   position: relative;
   z-index: 5;
 }
@@ -148,7 +148,7 @@
 .sectionDark {
   background-color: var(--color-navy-950);
   color: var(--color-white);
-  padding: 10rem 0;
+  padding: 6rem 0;
 }
 
 .sectionTitle {
@@ -199,7 +199,7 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  padding: 10rem 0;
+  padding: 8rem 0;
   text-align: center;
   position: relative;
 }
