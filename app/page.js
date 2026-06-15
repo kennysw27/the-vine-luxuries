@@ -30,28 +30,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className={styles.amenitiesSection}>
-        <div className="container">
-          <div className={styles.amenitiesGrid}>
-            <div className={styles.amenityCard}>
-              <div className={styles.amenityIcon}><Car size={40} strokeWidth={1} /></div>
-              <h3 className={styles.amenityTitle}>24/7 Valet & Parking</h3>
-              <p className={styles.amenityDesc}>Seamless vehicle retrieval and secure parking management, ensuring every departure and arrival is completely effortless.</p>
-            </div>
-            <div className={styles.amenityCard}>
-              <div className={styles.amenityIcon}><CalendarDays size={40} strokeWidth={1} /></div>
-              <h3 className={styles.amenityTitle}>Private Events & Bookings</h3>
-              <p className={styles.amenityDesc}>Exclusive coordination for resident gatherings, private dining, and effortless reservations at the city's finest venues.</p>
-            </div>
-            <div className={styles.amenityCard}>
-              <div className={styles.amenityIcon}><Flower2 size={40} strokeWidth={1} /></div>
-              <h3 className={styles.amenityTitle}>Wellness & Spa Access</h3>
-              <p className={styles.amenityDesc}>Discreet scheduling and privileged access to on-site wellness facilities, maintaining an atmosphere of ultimate relaxation.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className={styles.sectionDark}>
         <div className="container">
           <h2 className={`${styles.sectionTitle} animate-fade-up`}>Our Premium Services</h2>
@@ -70,6 +48,28 @@ export default function HomePage() {
               <div className={styles.serviceIcon}><Crown size={40} strokeWidth={1.5} /></div>
               <h3 className={styles.serviceTitle}>Brand Representation</h3>
               <p className={styles.serviceDesc}>Immaculate uniforms, polished communication, and concierge staff acting as the true ambassadors of your building's prestige.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.amenitiesSection}>
+        <div className="container">
+          <div className={styles.amenitiesGrid}>
+            <div className={styles.amenityCard}>
+              <div className={styles.amenityIcon}><Car size={40} strokeWidth={1} /></div>
+              <h3 className={styles.amenityTitle}>24/7 Valet & Parking</h3>
+              <p className={styles.amenityDesc}>Seamless vehicle retrieval and secure parking management, ensuring every departure and arrival is completely effortless.</p>
+            </div>
+            <div className={styles.amenityCard}>
+              <div className={styles.amenityIcon}><CalendarDays size={40} strokeWidth={1} /></div>
+              <h3 className={styles.amenityTitle}>Private Events & Bookings</h3>
+              <p className={styles.amenityDesc}>Exclusive coordination for resident gatherings, private dining, and effortless reservations at the city's finest venues.</p>
+            </div>
+            <div className={styles.amenityCard}>
+              <div className={styles.amenityIcon}><Flower2 size={40} strokeWidth={1} /></div>
+              <h3 className={styles.amenityTitle}>Wellness & Spa Access</h3>
+              <p className={styles.amenityDesc}>Discreet scheduling and privileged access to on-site wellness facilities, maintaining an atmosphere of ultimate relaxation.</p>
             </div>
           </div>
         </div>
