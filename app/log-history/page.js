@@ -9,12 +9,19 @@ import styles from './history.module.css';
 export default function LogHistoryPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [activeTab, setActiveTab] = useState('logs');
+
+  // Visitor Logs State
   const [logs, setLogs] = useState([]);
   const [filters, setFilters] = useState({ visitorName: '', visitType: '' });
 
+  // Applications State
+  const [applications, setApplications] = useState([]);
+  const [expandedApp, setExpandedApp] = useState(null);
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalMode, setModalMode] = useState('add');
   const [currentLogId, setCurrentLogId] = useState(null);
   const [formData, setFormData] = useState({
     dateTime: '',
@@ -35,10 +42,21 @@ export default function LogHistoryPage() {
     }
   };
 
+  const fetchApplications = async () => {
+    try {
+      const res = await fetch('/api/applications');
+      const data = await res.json();
+      setApplications(data);
+    } catch (error) {
+      console.error("Failed to fetch applications", error);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined' && sessionStorage.getItem("vine_admin_auth") === "true") {
       setIsAuthenticated(true);
       fetchLogs();
+      fetchApplications();
     }
   }, []);
 
@@ -55,6 +73,7 @@ export default function LogHistoryPage() {
         sessionStorage.setItem("vine_admin_auth", "true");
         setIsAuthenticated(true);
         fetchLogs();
+        fetchApplications();
       } else {
         alert("Incorrect password");
       }
@@ -79,7 +98,7 @@ export default function LogHistoryPage() {
         timeoutId = setTimeout(() => {
           handleLogout();
           alert("You have been automatically logged out due to 10 minutes of inactivity.");
-        }, 10 * 60 * 1000); // 10 minutes
+        }, 10 * 60 * 1000);
       }
     };
 
@@ -100,6 +119,7 @@ export default function LogHistoryPage() {
     };
   }, [isAuthenticated]);
 
+  // --- Visitor Log Functions ---
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
@@ -151,12 +171,10 @@ export default function LogHistoryPage() {
     doc.save("Vine_Luxuries_Logs.pdf");
   };
 
-  // CRUD Operations
   const openModal = (mode, log = null) => {
     setModalMode(mode);
     if (mode === 'edit' && log) {
       setCurrentLogId(log.id);
-      // Format datetime-local string
       const dateObj = new Date(log.dateTime);
       dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
       const localDateTime = dateObj.toISOString().slice(0, 16);
@@ -236,6 +254,79 @@ export default function LogHistoryPage() {
     }
   };
 
+  // --- Applications Functions ---
+  const updateApplicationStatus = async (id, status) => {
+    try {
+      const res = await fetch(`/api/applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        fetchApplications();
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error updating application");
+    }
+  };
+
+  const deleteApplication = async (id) => {
+    if (window.confirm("Are you sure you want to delete this application? This cannot be undone.")) {
+      try {
+        const res = await fetch(`/api/applications/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          setExpandedApp(null);
+          fetchApplications();
+        } else {
+          alert("Failed to delete application");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error deleting application");
+      }
+    }
+  };
+
+  const exportApplicationsCSV = () => {
+    const ws = XLSX.utils.json_to_sheet(applications.map(a => ({
+      "Date Applied": new Date(a.createdAt).toLocaleDateString(),
+      "Status": a.status,
+      "Full Name": a.fullName,
+      "Email": a.email,
+      "Phone": a.phone,
+      "Position": a.position,
+      "City": a.city,
+      "State": a.state,
+      "Authorized": a.authorized,
+      "18+": a.eighteenPlus,
+      "1st Shift": a.shift1 || '-',
+      "2nd Shift": a.shift2 || '-',
+      "3rd Shift": a.shift3 || '-',
+      "Holidays": a.holidays || '-',
+      "Overnights": a.overnights || '-',
+      "Transportation": a.transportation || '-',
+      "Skills": a.skills || '-',
+      "Prior Experience": a.priorExperience || '-',
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Applications");
+    XLSX.writeFile(wb, "Vine_Luxuries_Applications.csv");
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'New': return styles.statusNew;
+      case 'Reviewed': return styles.statusReviewed;
+      case 'Contacted': return styles.statusContacted;
+      case 'Rejected': return styles.statusRejected;
+      default: return styles.statusNew;
+    }
+  };
+
+  // --- Login Screen ---
   if (!isAuthenticated) {
     return (
       <div className={styles.pageWrapper}>
@@ -261,78 +352,241 @@ export default function LogHistoryPage() {
     );
   }
 
+  // --- Main Dashboard ---
   return (
     <div className={styles.pageWrapper}>
       <div className="container">
         <div className={styles.header}>
-          <h1 className={styles.title}>Log History</h1>
+          <h1 className={styles.title}>Admin Dashboard</h1>
           <div className={styles.actions}>
-            <button onClick={() => window.location.href='/digital-log'} className="btn-primary" style={{ padding: '0.8rem 1.5rem', background: 'var(--color-navy-950)', color: 'white', border: '1px solid var(--color-navy-950)', marginRight: 'auto' }}>Open Visitor Log</button>
-            <button onClick={() => openModal('add')} className="btn-primary" style={{ padding: '0.8rem 1.5rem' }}>+ Add Log</button>
-            <button onClick={exportCSV} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export CSV</button>
-            <button onClick={exportPDF} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export PDF</button>
             <button onClick={handleLogout} className="btn-secondary" style={{ padding: '0.8rem 1.5rem', background: '#333', color: 'white', border: 'none' }}>Logout</button>
           </div>
         </div>
 
-        <div className={styles.tableWrapper}>
-          <div className={styles.filters} style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2rem' }}>
-            <input 
-              type="text" 
-              name="visitorName" 
-              className={styles.filterInput} 
-              placeholder="Search by Name" 
-              value={filters.visitorName} 
-              onChange={handleFilterChange} 
-              style={{ padding: '0.8rem 1rem', width: '250px' }}
-            />
-            <select name="visitType" className={styles.filterInput} value={filters.visitType} onChange={handleFilterChange} style={{ padding: '0.8rem 1rem', width: '200px', cursor: 'pointer' }}>
-              <option value="">All Types</option>
-              <option value="Delivery">Delivery</option>
-              <option value="Guest">Guest</option>
-              <option value="Vendor">Vendor</option>
-              <option value="Contractor">Contractor</option>
-              <option value="Other">Other</option>
-            </select>
-            <button onClick={applyFilters} className="btn-primary" style={{ padding: '0.8rem 2rem' }}>Filter</button>
-            <button onClick={clearFilters} className="btn-secondary" style={{ padding: '0.8rem 2rem' }}>Clear</button>
-          </div>
-
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Date & Time</th>
-                <th>Unit Number</th>
-                <th>Visitor/Vendor Name</th>
-                <th>Type of Visit</th>
-                <th>Concierge Name</th>
-                <th>Comments/Notes</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map(log => (
-                <tr key={log.id}>
-                  <td>{new Date(log.dateTime).toLocaleString()}</td>
-                  <td>{log.unitNumber}</td>
-                  <td>{log.visitorName}</td>
-                  <td>{log.visitType}</td>
-                  <td>{log.conciergeName}</td>
-                  <td>{log.comments || '-'}</td>
-                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    <button onClick={() => openModal('edit', log)} className={styles.actionBtn}>Edit</button>
-                    <button onClick={() => handleDelete(log.id)} className={`${styles.actionBtn} ${styles.deleteBtn}`}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-              {logs.length === 0 && (
-                <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No log entries found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* Tab Navigation */}
+        <div className={styles.tabNav}>
+          <button 
+            className={`${styles.tab} ${activeTab === 'logs' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('logs')}
+          >
+            Visitor Logs ({logs.length})
+          </button>
+          <button 
+            className={`${styles.tab} ${activeTab === 'applications' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('applications')}
+          >
+            Job Applications ({applications.length})
+          </button>
         </div>
+
+        {/* ===== VISITOR LOGS TAB ===== */}
+        {activeTab === 'logs' && (
+          <>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+              <button onClick={() => window.location.href='/digital-log'} className="btn-primary" style={{ padding: '0.8rem 1.5rem', background: 'var(--color-navy-950)', color: 'white', border: '1px solid var(--color-navy-950)' }}>Open Visitor Log</button>
+              <button onClick={() => openModal('add')} className="btn-primary" style={{ padding: '0.8rem 1.5rem' }}>+ Add Log</button>
+              <button onClick={exportCSV} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export CSV</button>
+              <button onClick={exportPDF} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export PDF</button>
+            </div>
+
+            <div className={styles.tableWrapper}>
+              <div className={styles.filters} style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2rem' }}>
+                <input 
+                  type="text" 
+                  name="visitorName" 
+                  className={styles.filterInput} 
+                  placeholder="Search by Name" 
+                  value={filters.visitorName} 
+                  onChange={handleFilterChange} 
+                  style={{ padding: '0.8rem 1rem', width: '250px' }}
+                />
+                <select name="visitType" className={styles.filterInput} value={filters.visitType} onChange={handleFilterChange} style={{ padding: '0.8rem 1rem', width: '200px', cursor: 'pointer' }}>
+                  <option value="">All Types</option>
+                  <option value="Delivery">Delivery</option>
+                  <option value="Guest">Guest</option>
+                  <option value="Vendor">Vendor</option>
+                  <option value="Contractor">Contractor</option>
+                  <option value="Other">Other</option>
+                </select>
+                <button onClick={applyFilters} className="btn-primary" style={{ padding: '0.8rem 2rem' }}>Filter</button>
+                <button onClick={clearFilters} className="btn-secondary" style={{ padding: '0.8rem 2rem' }}>Clear</button>
+              </div>
+
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Date & Time</th>
+                    <th>Unit Number</th>
+                    <th>Visitor/Vendor Name</th>
+                    <th>Type of Visit</th>
+                    <th>Concierge Name</th>
+                    <th>Comments/Notes</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {logs.map(log => (
+                    <tr key={log.id}>
+                      <td>{new Date(log.dateTime).toLocaleString()}</td>
+                      <td>{log.unitNumber}</td>
+                      <td>{log.visitorName}</td>
+                      <td>{log.visitType}</td>
+                      <td>{log.conciergeName}</td>
+                      <td>{log.comments || '-'}</td>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <button onClick={() => openModal('edit', log)} className={styles.actionBtn}>Edit</button>
+                        <button onClick={() => handleDelete(log.id)} className={`${styles.actionBtn} ${styles.deleteBtn}`}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {logs.length === 0 && (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No log entries found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* ===== APPLICATIONS TAB ===== */}
+        {activeTab === 'applications' && (
+          <>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+              <button onClick={exportApplicationsCSV} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export Applications CSV</button>
+            </div>
+
+            <div className={styles.tableWrapper}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {applications.map(app => (
+                    <tr key={app.id}>
+                      <td>{new Date(app.createdAt).toLocaleDateString()}</td>
+                      <td style={{ fontWeight: 500 }}>{app.fullName}</td>
+                      <td>{app.position}</td>
+                      <td><a href={`mailto:${app.email}`} style={{ color: 'var(--color-gold-500)' }}>{app.email}</a></td>
+                      <td><a href={`tel:${app.phone}`}>{app.phone}</a></td>
+                      <td>
+                        <select
+                          className={styles.statusSelect}
+                          value={app.status}
+                          onChange={(e) => updateApplicationStatus(app.id, e.target.value)}
+                        >
+                          <option value="New">New</option>
+                          <option value="Reviewed">Reviewed</option>
+                          <option value="Contacted">Contacted</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      </td>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <button onClick={() => setExpandedApp(expandedApp === app.id ? null : app.id)} className={styles.actionBtn}>
+                          {expandedApp === app.id ? 'Close' : 'View'}
+                        </button>
+                        <button onClick={() => deleteApplication(app.id)} className={`${styles.actionBtn} ${styles.deleteBtn}`}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {applications.length === 0 && (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No applications received yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              {/* Expanded Application Detail */}
+              {expandedApp && (() => {
+                const app = applications.find(a => a.id === expandedApp);
+                if (!app) return null;
+                return (
+                  <div className={styles.detailPanel} style={{ marginTop: '2rem' }}>
+                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', marginBottom: '0.5rem' }}>{app.fullName}</h3>
+                    <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '2rem' }}>Applied {new Date(app.createdAt).toLocaleString()} · <span className={`${styles.statusBadge} ${getStatusClass(app.status)}`}>{app.status}</span></p>
+
+                    {/* Personal Information */}
+                    <div className={styles.detailGrid}>
+                      <div><p className={styles.detailLabel}>Email</p><p className={styles.detailValue}>{app.email}</p></div>
+                      <div><p className={styles.detailLabel}>Phone</p><p className={styles.detailValue}>{app.phone}</p></div>
+                      <div><p className={styles.detailLabel}>Address</p><p className={styles.detailValue}>{app.address}, {app.city}, {app.state} {app.zip}</p></div>
+                      <div><p className={styles.detailLabel}>Work Authorization</p><p className={styles.detailValue}>{app.authorized}</p></div>
+                      <div><p className={styles.detailLabel}>18 or Older</p><p className={styles.detailValue}>{app.eighteenPlus}</p></div>
+                    </div>
+
+                    {/* Position */}
+                    <div className={styles.detailSection}>
+                      <h4 className={styles.detailSectionTitle}>Position Information</h4>
+                      <div className={styles.detailGrid}>
+                        <div><p className={styles.detailLabel}>Position</p><p className={styles.detailValue}>{app.position}</p></div>
+                        <div><p className={styles.detailLabel}>How They Heard About Us</p><p className={styles.detailValue}>{app.heardAbout || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Desired Pay</p><p className={styles.detailValue}>{app.desiredPay || '-'}</p></div>
+                      </div>
+                    </div>
+
+                    {/* Availability */}
+                    <div className={styles.detailSection}>
+                      <h4 className={styles.detailSectionTitle}>Availability</h4>
+                      <div className={styles.detailGrid}>
+                        <div><p className={styles.detailLabel}>1st Shift (7AM-3PM)</p><p className={styles.detailValue}>{app.shift1 || 'Not selected'}</p></div>
+                        <div><p className={styles.detailLabel}>2nd Shift (3PM-11PM)</p><p className={styles.detailValue}>{app.shift2 || 'Not selected'}</p></div>
+                        <div><p className={styles.detailLabel}>3rd Shift (11PM-7AM)</p><p className={styles.detailValue}>{app.shift3 || 'Not selected'}</p></div>
+                        <div><p className={styles.detailLabel}>Holidays</p><p className={styles.detailValue}>{app.holidays || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Overnights</p><p className={styles.detailValue}>{app.overnights || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Transportation</p><p className={styles.detailValue}>{app.transportation || '-'}</p></div>
+                      </div>
+                    </div>
+
+                    {/* Employment History */}
+                    <div className={styles.detailSection}>
+                      <h4 className={styles.detailSectionTitle}>Employment History</h4>
+                      <div className={styles.detailGrid}>
+                        <div><p className={styles.detailLabel}>Most Recent Company</p><p className={styles.detailValue}>{app.recentCompany || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Position</p><p className={styles.detailValue}>{app.recentPosition || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Dates</p><p className={styles.detailValue}>{app.recentDates || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Reason for Leaving</p><p className={styles.detailValue}>{app.recentLeaving || '-'}</p></div>
+                      </div>
+                      <div className={styles.detailGrid} style={{ marginTop: '1.5rem' }}>
+                        <div><p className={styles.detailLabel}>Previous Company</p><p className={styles.detailValue}>{app.prevCompany || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Position</p><p className={styles.detailValue}>{app.prevPosition || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Dates</p><p className={styles.detailValue}>{app.prevDates || '-'}</p></div>
+                        <div><p className={styles.detailLabel}>Reason for Leaving</p><p className={styles.detailValue}>{app.prevLeaving || '-'}</p></div>
+                      </div>
+                      {app.priorExperience && (
+                        <div style={{ marginTop: '1.5rem' }}>
+                          <p className={styles.detailLabel}>Prior Hospitality/Concierge Experience</p>
+                          <p className={styles.detailValue}>{app.priorExperience}{app.experienceDescription ? ` — ${app.experienceDescription}` : ''}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Skills */}
+                    <div className={styles.detailSection}>
+                      <h4 className={styles.detailSectionTitle}>Skills</h4>
+                      <p className={styles.detailValue}>{app.skills || 'None selected'}</p>
+                      {app.bilingualLanguages && (
+                        <div style={{ marginTop: '1rem' }}>
+                          <p className={styles.detailLabel}>Languages</p>
+                          <p className={styles.detailValue}>{app.bilingualLanguages}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </>
+        )}
       </div>
 
       {/* CRUD Modal */}

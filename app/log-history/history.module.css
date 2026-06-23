@@ -164,3 +164,121 @@
     border-radius: 0;
   }
 }
+
+/* Tab Navigation */
+.tabNav {
+  display: flex;
+  gap: 0;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.tab {
+  padding: 1rem 2rem;
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.tab:hover {
+  color: var(--color-navy-950);
+}
+
+.tabActive {
+  color: var(--color-navy-950);
+  border-bottom-color: var(--color-gold-500);
+}
+
+/* Status Badges */
+.statusBadge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  border-radius: 2px;
+}
+
+.statusNew {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.statusReviewed {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.statusContacted {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.statusRejected {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+/* Applicant Detail Panel */
+.detailPanel {
+  background: var(--color-white);
+  padding: 2rem;
+  border: 1px solid var(--color-gray-border);
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detailLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-gold-500);
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.detailValue {
+  font-size: 0.95rem;
+  color: var(--color-navy-950);
+}
+
+.detailSection {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-gray-border);
+}
+
+.detailSectionTitle {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-navy-950);
+}
+
+.statusSelect {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--color-gray-border);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+  background: var(--color-white);
+}

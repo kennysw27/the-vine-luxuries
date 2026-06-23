@@ -99,7 +99,7 @@ export default function CareersPage() {
       recentPosition: formData.get('recentPosition'),
       recentDates: formData.get('recentDates'),
       recentLeaving: formData.get('recentLeaving'),
-      prevEmployer: formData.get('prevCompany'),
+      prevCompany: formData.get('prevCompany'),
       prevPosition: formData.get('prevPosition'),
       prevDates: formData.get('prevDates'),
       prevLeaving: formData.get('prevLeaving'),
@@ -107,20 +107,30 @@ export default function CareersPage() {
       experienceDescription: experienceDescription,
       skills: skills.join(', '),
       bilingualLanguages: bilingualLanguages,
-      _subject: `New Job Application: ${formData.get('fullName')}`,
+      backgroundCheck: formData.get('backgroundCheck') === 'agreed',
+      certification: formData.get('certification') === 'certified',
     };
 
-    // Save to localStorage for admin access
-    const saved = JSON.parse(localStorage.getItem('vine_applications') || '[]');
-    saved.push({ ...data, submittedAt: new Date().toISOString(), id: Date.now().toString(36) });
-    localStorage.setItem('vine_applications', JSON.stringify(saved));
+    // Save to database via API
+    try {
+      const res = await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        console.error('Failed to save application to database');
+      }
+    } catch (err) {
+      console.error('Database save error:', err);
+    }
 
-    // Send via FormSubmit
+    // Also send via FormSubmit for email notification
     try {
       await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
         method: "POST",
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, _subject: `New Job Application: ${data.fullName}` }),
       });
     } catch (err) {
       console.error('Email submission error:', err);
