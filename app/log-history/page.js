@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Eye, EyeOff } from 'lucide-react';
 import styles from './history.module.css';
 
 export default function LogHistoryPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('logs');
 
   // Visitor Logs State
@@ -336,13 +338,36 @@ export default function LogHistoryPage() {
               <h1 className="mb-4" style={{ fontFamily: 'var(--font-heading)', fontSize: '2rem' }}>Admin Access</h1>
               <p className="mb-4 text-sm" style={{ color: '#666' }}>Enter password to view logs.</p>
               <form onSubmit={handleLogin}>
-                <input 
-                  type="password" 
-                  className="form-input mb-4" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  placeholder="Password" 
-                />
+                <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    className="form-input" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="Password" 
+                    style={{ paddingRight: '2.5rem' }}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ 
+                      position: 'absolute', 
+                      right: '0.75rem', 
+                      top: '50%', 
+                      transform: 'translateY(-50%)', 
+                      background: 'transparent', 
+                      border: 'none', 
+                      cursor: 'pointer',
+                      color: '#666',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
                 <button type="submit" className="btn-primary" style={{ width: '100%' }}>Access Dashboard</button>
               </form>
             </div>
