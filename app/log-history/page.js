@@ -38,9 +38,15 @@ export default function LogHistoryPage() {
     try {
       const res = await fetch(`/api/logs${query}`);
       const data = await res.json();
-      setLogs(data);
+      if (Array.isArray(data)) {
+        setLogs(data);
+      } else {
+        console.error("API returned error:", data);
+        setLogs([]);
+      }
     } catch (error) {
       console.error("Failed to fetch logs", error);
+      setLogs([]);
     }
   };
 
@@ -48,9 +54,15 @@ export default function LogHistoryPage() {
     try {
       const res = await fetch('/api/applications');
       const data = await res.json();
-      setApplications(data);
+      if (Array.isArray(data)) {
+        setApplications(data);
+      } else {
+        console.error("API returned error:", data);
+        setApplications([]);
+      }
     } catch (error) {
       console.error("Failed to fetch applications", error);
+      setApplications([]);
     }
   };
 
