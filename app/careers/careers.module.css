@@ -1,0 +1,323 @@
+.pageWrapper {
+  min-height: 100vh;
+  padding: 14rem 0 8rem 0;
+  background: var(--color-cream);
+}
+
+.headerSection {
+  text-align: center;
+  max-width: 750px;
+  margin: 0 auto 6rem auto;
+}
+
+.title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.1;
+  margin-bottom: 2rem;
+}
+
+.intro {
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* Section Headers */
+.sectionHeader {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-gray-border);
+}
+
+.sectionNumber {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-gold-500);
+  margin-bottom: 0.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.8rem;
+  letter-spacing: 0.02em;
+}
+
+/* Form Container */
+.formContainer {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.formSection {
+  margin-bottom: 5rem;
+}
+
+/* Form Grid */
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+/* Yes/No Toggle */
+.yesNoGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.yesNoOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--color-navy-950);
+}
+
+.yesNoOption input[type="radio"] {
+  accent-color: var(--color-gold-500);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Availability Shift Cards */
+.shiftGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .shiftGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shiftCard {
+  background: var(--color-white);
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  border: 1px solid var(--color-gray-border);
+  transition: all 0.3s ease;
+}
+
+.shiftCard:hover {
+  border-color: var(--color-gold-400);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+
+.shiftLabel {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--color-navy-950);
+}
+
+.shiftTime {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-gold-500);
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.shiftOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.shiftOption {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--color-charcoal);
+}
+
+.shiftOption input[type="radio"] {
+  accent-color: var(--color-gold-500);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Skill Checkboxes */
+.skillsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .skillsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skillOption {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--color-charcoal);
+  padding: 0.75rem 1rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-border);
+  transition: all 0.3s ease;
+}
+
+.skillOption:hover {
+  border-color: var(--color-gold-400);
+}
+
+.skillOption input[type="checkbox"] {
+  accent-color: var(--color-gold-500);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Consent Checkboxes */
+.consentOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--color-charcoal);
+  line-height: 1.6;
+}
+
+.consentOption input[type="checkbox"] {
+  accent-color: var(--color-gold-500);
+  width: 18px;
+  height: 18px;
+  margin-top: 0.2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* File Upload */
+.fileUploadArea {
+  border: 2px dashed var(--color-gray-border);
+  padding: 2.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--color-white);
+}
+
+.fileUploadArea:hover {
+  border-color: var(--color-gold-500);
+}
+
+.fileUploadIcon {
+  color: var(--color-gold-500);
+  margin-bottom: 1rem;
+}
+
+.fileUploadText {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 300;
+}
+
+.fileUploadHint {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 0.5rem;
+}
+
+.fileName {
+  font-size: 0.85rem;
+  color: var(--color-navy-950);
+  margin-top: 0.75rem;
+  font-weight: 500;
+}
+
+/* Error Message */
+.errorText {
+  font-size: 0.75rem;
+  color: #c0392b;
+  margin-top: 0.3rem;
+}
+
+/* Submit Button Row */
+.submitRow {
+  margin-top: 4rem;
+  text-align: center;
+}
+
+/* Success Message */
+.successOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(250, 249, 245, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.successBox {
+  text-align: center;
+  max-width: 600px;
+  padding: 4rem 3rem;
+}
+
+.successIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-navy-950);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem auto;
+  color: var(--color-gold-400);
+}
+
+.successTitle {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.successText {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* Required Marker */
+.required {
+  color: #c0392b;
+}

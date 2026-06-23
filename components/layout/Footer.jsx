@@ -14,6 +14,7 @@ export function Footer() {
           <Link href="/" style={{ color: 'var(--color-white)', fontSize: '0.9rem' }}>Home</Link>
           <Link href="/about" style={{ color: 'var(--color-white)', fontSize: '0.9rem' }}>About</Link>
           <Link href="/services" style={{ color: 'var(--color-white)', fontSize: '0.9rem' }}>Services</Link>
+          <Link href="/careers" style={{ color: 'var(--color-white)', fontSize: '0.9rem' }}>Join Our Team</Link>
           <Link href="/contact" style={{ color: 'var(--color-white)', fontSize: '0.9rem' }}>Contact</Link>
         </div>
         <div style={{ fontSize: '0.8rem', color: '#888' }}>
