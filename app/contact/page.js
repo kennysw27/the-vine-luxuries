@@ -75,6 +75,9 @@ export default function ContactPage() {
 
       const emailRes = await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
         method: "POST",
+        headers: {
+          'Accept': 'application/json'
+        },
         body: emailData,
       });
 
