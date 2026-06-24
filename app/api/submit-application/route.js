@@ -116,7 +116,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Submit application error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to process application. Please try again.' },
+      { success: false, error: `Failed to process application: ${error.message || 'Unknown error'}` },
       { status: 500 }
     );
   }
