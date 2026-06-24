@@ -105,11 +105,11 @@ export async function POST(request) {
       } catch (smtpErr) {
         console.error('SMTP email error, falling back to FormSubmit:', smtpErr);
         // Fall back to FormSubmit if SMTP fails
-        await sendFormSubmitFallback(data, hasResume);
+        await sendFormSubmitFallback(data, hasResume, smtpErr.message);
       }
     } else {
       // No SMTP configured — use FormSubmit with full form data in email body
-      await sendFormSubmitFallback(data, hasResume);
+      await sendFormSubmitFallback(data, hasResume, 'SMTP not configured');
     }
 
     return NextResponse.json({ success: true, message: 'Application submitted successfully.' });
@@ -123,7 +123,7 @@ export async function POST(request) {
 }
 
 // --- FormSubmit fallback (no attachments, but includes all data in email body) ---
-async function sendFormSubmitFallback(data, hasResume) {
+async function sendFormSubmitFallback(data, hasResume, smtpErrorMsg = '') {
   try {
     const res = await fetch('https://formsubmit.co/ajax/inquiries@thevineluxuries.com', {
       method: 'POST',
@@ -134,6 +134,7 @@ async function sendFormSubmitFallback(data, hasResume) {
       body: JSON.stringify({
         _subject: `New Employment Application - The Vine Luxuries LLC - ${data.fullName}`,
         _template: 'table',
+        '0. SMTP ERROR (Admin Only)': smtpErrorMsg || 'None',
         '1. Full Name': data.fullName,
         '2. Phone': data.phone,
         '3. Email': data.email,
