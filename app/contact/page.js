@@ -1,14 +1,19 @@
-'use client';
-
+import { useState } from 'react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import styles from './contact.module.css';
 
 export default function ContactPage() {
+  const [submitError, setSubmitError] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError('');
+    
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
+
+    try {
 
     // Generate Branded PDF for the Inquiry
     const doc = new jsPDF();
@@ -37,10 +42,10 @@ export default function ContactPage() {
     doc.setFontSize(10);
     doc.text(`Submitted Date: ${new Date().toLocaleString()}`, 20, 52);
 
-    // Document Body
-    doc.autoTable({
-      startY: 60,
-      head: [['Field', 'Details']],
+      // Document Body
+      autoTable(doc, {
+        startY: 60,
+        head: [['Field', 'Details']],
       body: [
         ['Full Name', data.name],
         ['Email Address', data.email],
@@ -60,8 +65,7 @@ export default function ContactPage() {
     const pdfBlob = doc.output('blob');
     const pdfFile = new File([pdfBlob], `The-Vine-Luxuries-Inquiry-${data.name.replace(/\s+/g, '-')}.pdf`, { type: 'application/pdf' });
 
-    // Send via FormSubmit using FormData (multipart/form-data)
-    try {
+      // Send via FormSubmit using FormData (multipart/form-data)
       const emailData = new FormData();
       emailData.append('_subject', `New Inquiry/Consultation - The Vine Luxuries LLC - ${data.name}`);
       emailData.append('Message', `A new inquiry has been submitted through The Vine Luxuries LLC website.\n\nThe complete inquiry details are attached as a PDF.`);
@@ -69,15 +73,18 @@ export default function ContactPage() {
       emailData.append('Property_Name', data.propertyName);
       emailData.append('Inquiry_PDF', pdfFile);
 
-      await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
+      const emailRes = await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
         method: "POST",
         body: emailData,
       });
+
+      if (!emailRes.ok) throw new Error('Email submission failed');
+
       alert("Thank you for your inquiry. Our team will contact you shortly.");
       e.target.reset();
     } catch(error) {
       console.error(error);
-      alert("There was an error sending your message. Please try again.");
+      setSubmitError("There was an error generating or sending your message. Please try again.");
     }
   };
 
@@ -146,6 +153,13 @@ export default function ContactPage() {
                 </div>
 
               </div>
+              
+              {submitError && (
+                <div style={{ marginTop: '1rem', padding: '1rem', background: '#ffebee', color: '#c62828', borderRadius: '4px', textAlign: 'center' }}>
+                  {submitError}
+                </div>
+              )}
+              
               <div style={{ marginTop: '2rem' }}>
                 <button type="submit" className="btn-primary" style={{ width: '100%' }}>Send Message</button>
               </div>
