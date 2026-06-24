@@ -209,47 +209,24 @@ export default function CareersPage() {
       const pdfBlob = doc.output('blob');
       const pdfFile = new File([pdfBlob], `The-Vine-Luxuries-Employment-Application-${data.fullName.replace(/\s+/g, '-')}.pdf`, { type: 'application/pdf' });
 
-      // Save to database via API
-      try {
-        const res = await fetch('/api/applications', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (!res.ok) {
-          console.error('Failed to save application to database');
-        }
-      } catch (err) {
-        console.error('Database save error:', err);
+      // Submit to our own API (handles email with attachments + database save)
+      const submitData = new FormData();
+      submitData.append('applicationData', JSON.stringify(data));
+      submitData.append('applicationPdf', pdfFile);
+      
+      if (selectedFile) {
+        submitData.append('resume', selectedFile);
       }
 
-      // Send via FormSubmit using FormData (multipart/form-data)
-      try {
-        const emailData = new FormData();
-        emailData.append('_subject', `New Employment Application - The Vine Luxuries LLC - ${data.fullName}`);
-        emailData.append('Message', `A new employment application has been submitted through The Vine Luxuries LLC website. The completed application PDF and any uploaded resume are attached.`);
-        emailData.append('Applicant_Name', data.fullName);
-        emailData.append('Application_PDF', pdfFile);
-        
-        if (selectedFile) {
-          emailData.append('Uploaded_Resume', selectedFile);
-        }
+      const res = await fetch('/api/submit-application', {
+        method: 'POST',
+        body: submitData,
+      });
 
-        const emailRes = await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
-          method: "POST",
-          headers: {
-            'Accept': 'application/json'
-          },
-          body: emailData,
-        });
+      const result = await res.json();
 
-        if (!emailRes.ok) {
-          throw new Error('Email submission failed');
-        }
-      } catch (err) {
-        console.error('Email submission error:', err);
-        setSubmitError('Failed to send email notification. Please try again.');
-        return; // Don't show success if email fails
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Submission failed');
       }
 
       setSubmitted(true);
@@ -257,7 +234,7 @@ export default function CareersPage() {
 
     } catch (err) {
       console.error('Submission error:', err);
-      setSubmitError('An unexpected error occurred while generating the application. Please try again.');
+      setSubmitError(err.message || 'An unexpected error occurred. Please try again.');
     }
   };
 
