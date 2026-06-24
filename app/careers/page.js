@@ -18,6 +18,7 @@ const SKILLS_LIST = [
 export default function CareersPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [skills, setSkills] = useState([]);
@@ -115,6 +116,7 @@ export default function CareersPage() {
     };
 
     setSubmitError('');
+    setIsSubmitting(true);
 
     try {
       // Generate Branded PDF
@@ -235,6 +237,8 @@ export default function CareersPage() {
     } catch (err) {
       console.error('Submission error:', err);
       setSubmitError(err.message || 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -593,8 +597,8 @@ export default function CareersPage() {
                 </div>
               )}
               <div style={{ textAlign: 'center' }}>
-                <button type="submit" className="btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.1rem' }}>
-                  Submit Application
+                <button type="submit" className="btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.1rem' }} disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
                 </button>
               </div>
             </div>
