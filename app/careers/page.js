@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, CheckCircle } from 'lucide-react';
+import { Upload, CheckCircle, FileText, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import styles from './careers.module.css';
 
 const SKILLS_LIST = [
@@ -111,6 +113,98 @@ export default function CareersPage() {
       certification: formData.get('certification') === 'certified',
     };
 
+    // Generate Branded PDF
+    const doc = new jsPDF();
+    
+    // Add Branding Header
+    doc.setTextColor(212, 175, 55); // Gold color
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("THE VINE LUXURIES", 105, 20, { align: "center" });
+    
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.text("Where Excellence Meets Hospitality", 105, 27, { align: "center" });
+    
+    // Title
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("EMPLOYMENT APPLICATION", 105, 40, { align: "center" });
+    
+    doc.setLineWidth(0.5);
+    doc.line(20, 45, 190, 45);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Submitted Date: ${new Date().toLocaleString()}`, 20, 52);
+
+    // Document Body
+    doc.autoTable({
+      startY: 60,
+      head: [['Section', 'Details']],
+      body: [
+        ['1. Personal Information', ''],
+        ['Full Name', data.fullName],
+        ['Phone', data.phone],
+        ['Email', data.email],
+        ['Address', `${data.address}, ${data.city}, ${data.state} ${data.zip}`],
+        ['Authorized to work in US', data.authorized],
+        ['18 or older', data.eighteenPlus],
+        
+        ['\n2. Position Information', ''],
+        ['Position Applying For', data.position],
+        ['How did you hear about us', data.heardAbout || '-'],
+        ['Desired Pay', data.desiredPay || '-'],
+        
+        ['\n3. Availability', ''],
+        ['1st Shift (7 AM - 3 PM)', data.shift1],
+        ['2nd Shift (3 PM - 11 PM)', data.shift2],
+        ['3rd Shift (11 PM - 7 AM)', data.shift3],
+        ['Able to work holidays', data.holidays],
+        ['Able to work overnights', data.overnights],
+        ['Reliable transportation', data.transportation],
+        
+        ['\n4. Employment Experience', ''],
+        ['Most Recent Employer', data.recentEmployer || '-'],
+        ['Position Held', data.recentPosition || '-'],
+        ['Dates', data.recentDates || '-'],
+        ['Reason for leaving', data.recentLeaving || '-'],
+        ['Previous Employer', data.prevCompany || '-'],
+        ['Position Held', data.prevPosition || '-'],
+        ['Dates', data.prevDates || '-'],
+        ['Reason for leaving', data.prevLeaving || '-'],
+        ['Prior Hospitality Experience', data.priorExperience === 'Yes' ? data.experienceDescription : 'No'],
+        
+        ['\n5. Skills & Qualifications', ''],
+        ['Skills', data.skills || 'None selected'],
+        ['Bilingual Languages', data.bilingualLanguages || '-'],
+        
+        ['\n6. Authorizations', ''],
+        ['Background Check Consent', data.backgroundCheck ? 'Agreed' : 'Not Agreed'],
+        ['Applicant Certification', data.certification ? 'Certified' : 'Not Certified'],
+        ['Resume Uploaded', selectedFile ? 'Yes' : 'No']
+      ],
+      theme: 'grid',
+      styles: { fontSize: 9, cellPadding: 3 },
+      columnStyles: { 
+        0: { fontStyle: 'bold', cellWidth: 70, fillColor: [250, 249, 245] },
+        1: { cellWidth: 'auto' }
+      },
+      didParseCell: function(data) {
+        // Make section headers span two columns and style them
+        if (data.row.raw[0].startsWith('\n') || data.row.raw[0].startsWith('1.')) {
+          data.cell.styles.fillColor = [15, 30, 60]; // Navy blue
+          data.cell.styles.textColor = [255, 255, 255];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    });
+
+    const pdfBlob = doc.output('blob');
+    const pdfFile = new File([pdfBlob], `The-Vine-Luxuries-Employment-Application-${data.fullName.replace(/\s+/g, '-')}.pdf`, { type: 'application/pdf' });
+
     // Save to database via API
     try {
       const res = await fetch('/api/applications', {
@@ -125,12 +219,21 @@ export default function CareersPage() {
       console.error('Database save error:', err);
     }
 
-    // Also send via FormSubmit for email notification
+    // Send via FormSubmit using FormData (multipart/form-data)
     try {
+      const emailData = new FormData();
+      emailData.append('_subject', `New Employment Application - The Vine Luxuries LLC - ${data.fullName}`);
+      emailData.append('Message', `A new employment application has been submitted through The Vine Luxuries LLC website.\n\nThe completed application PDF and any uploaded resume are attached.`);
+      emailData.append('Applicant_Name', data.fullName);
+      emailData.append('Application_PDF', pdfFile);
+      
+      if (selectedFile) {
+        emailData.append('Uploaded_Resume', selectedFile);
+      }
+
       await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ ...data, _subject: `New Job Application: ${data.fullName}` }),
+        body: emailData,
       });
     } catch (err) {
       console.error('Email submission error:', err);
@@ -187,6 +290,20 @@ export default function CareersPage() {
           <p className={styles.intro}>
             The Vine Luxuries LLC is looking for dependable, professional, and customer-focused team members. Please complete the application below to be considered for available positions.
           </p>
+        </div>
+
+        {/* Download Offline Application */}
+        <div style={{ maxWidth: '900px', margin: '0 auto 4rem auto', padding: '2.5rem', background: 'var(--color-white)', border: '1px solid var(--color-gray-border)', textAlign: 'center' }}>
+          <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', marginBottom: '1rem', color: 'var(--color-navy-950)' }}>Prefer to complete the application offline?</h3>
+          <p style={{ color: '#666', fontSize: '0.95rem', marginBottom: '2rem' }}>Download the employment application below, fill it out, and email it directly to <a href="mailto:inquiries@thevineluxuries.com" style={{ color: 'var(--color-gold-500)' }}>inquiries@thevineluxuries.com</a>.</p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/TVL_Employment_Application.docx" download className="btn-luxury" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', fontSize: '0.85rem' }}>
+              <Download size={18} /> Download Word Application
+            </a>
+            <a href="/TVL_Employment_Application.pdf" download className="btn-luxury-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', fontSize: '0.85rem' }}>
+              <FileText size={18} /> Download PDF Application
+            </a>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.formContainer} noValidate>

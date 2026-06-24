@@ -1,20 +1,77 @@
 'use client';
 
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import styles from './contact.module.css';
 
 export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    // Generate Branded PDF for the Inquiry
+    const doc = new jsPDF();
     
+    // Add Branding Header
+    doc.setTextColor(212, 175, 55); // Gold color
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("THE VINE LUXURIES", 105, 20, { align: "center" });
+    
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.text("Where Excellence Meets Hospitality", 105, 27, { align: "center" });
+    
+    // Title
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("NEW INQUIRY / CONSULTATION REQUEST", 105, 40, { align: "center" });
+    
+    doc.setLineWidth(0.5);
+    doc.line(20, 45, 190, 45);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Submitted Date: ${new Date().toLocaleString()}`, 20, 52);
+
+    // Document Body
+    doc.autoTable({
+      startY: 60,
+      head: [['Field', 'Details']],
+      body: [
+        ['Full Name', data.name],
+        ['Email Address', data.email],
+        ['Phone Number', data.phone],
+        ['Property Name', data.propertyName],
+        ['Property Type', data.propertyType],
+        ['Message', data.message],
+      ],
+      theme: 'grid',
+      styles: { fontSize: 10, cellPadding: 4 },
+      columnStyles: { 
+        0: { fontStyle: 'bold', cellWidth: 50, fillColor: [250, 249, 245] },
+        1: { cellWidth: 'auto' }
+      }
+    });
+
+    const pdfBlob = doc.output('blob');
+    const pdfFile = new File([pdfBlob], `The-Vine-Luxuries-Inquiry-${data.name.replace(/\s+/g, '-')}.pdf`, { type: 'application/pdf' });
+
+    // Send via FormSubmit using FormData (multipart/form-data)
     try {
-      await fetch("https://formsubmit.co/ajax/Inquiries@thevineluxuries.com", {
+      const emailData = new FormData();
+      emailData.append('_subject', `New Inquiry/Consultation - The Vine Luxuries LLC - ${data.name}`);
+      emailData.append('Message', `A new inquiry has been submitted through The Vine Luxuries LLC website.\n\nThe complete inquiry details are attached as a PDF.`);
+      emailData.append('Sender_Name', data.name);
+      emailData.append('Property_Name', data.propertyName);
+      emailData.append('Inquiry_PDF', pdfFile);
+
+      await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
         method: "POST",
-        headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify(Object.fromEntries(formData))
+        body: emailData,
       });
       alert("Thank you for your inquiry. Our team will contact you shortly.");
       e.target.reset();
