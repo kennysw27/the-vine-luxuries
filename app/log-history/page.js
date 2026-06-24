@@ -618,6 +618,28 @@ export default function LogHistoryPage() {
                         </div>
                       )}
                     </div>
+
+                    {/* Documents */}
+                    <div className={styles.detailSection}>
+                      <h4 className={styles.detailSectionTitle}>Attached Documents</h4>
+                      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        {app.applicationPdfBase64 ? (
+                          <a href={app.applicationPdfBase64} download={`The-Vine-Luxuries-Application-${app.fullName.replace(/\s+/g, '-')}.pdf`} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block' }}>
+                            Download App PDF
+                          </a>
+                        ) : (
+                          <span style={{ color: '#888', fontSize: '0.9rem', padding: '0.5rem 0' }}>No PDF stored</span>
+                        )}
+                        
+                        {app.resumeFileBase64 ? (
+                          <a href={app.resumeFileBase64} download={`Resume-${app.fullName.replace(/\s+/g, '-')}`} className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block' }}>
+                            Download Resume
+                          </a>
+                        ) : (
+                          <span style={{ color: '#888', fontSize: '0.9rem', padding: '0.5rem 0' }}>No Resume uploaded</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 );
               })()}

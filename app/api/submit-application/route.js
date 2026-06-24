@@ -17,6 +17,22 @@ export async function POST(request) {
     const pdfFile = formData.get('applicationPdf');
     const resumeFile = formData.get('resume');
 
+    // Convert files to Base64 for database storage
+    let applicationPdfBase64 = null;
+    if (pdfFile && pdfFile.size > 0) {
+      const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
+      applicationPdfBase64 = `data:application/pdf;base64,${pdfBuffer.toString('base64')}`;
+    }
+
+    let resumeFileBase64 = null;
+    if (resumeFile && resumeFile.size > 0) {
+      const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());
+      const ext = resumeFile.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 
+                  resumeFile.name.toLowerCase().endsWith('.doc') ? 'application/msword' : 
+                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      resumeFileBase64 = `data:${ext};base64,${resumeBuffer.toString('base64')}`;
+    }
+
     // --- STEP 1: Save to database (always runs) ---
     try {
       await prisma.jobApplication.create({
@@ -53,6 +69,8 @@ export async function POST(request) {
           bilingualLanguages: data.bilingualLanguages || '',
           backgroundCheck: data.backgroundCheck,
           certification: data.certification,
+          applicationPdfBase64,
+          resumeFileBase64,
         },
       });
     } catch (dbErr) {
