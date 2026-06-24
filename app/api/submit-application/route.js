@@ -146,12 +146,16 @@ export async function POST(request) {
 // --- FormSubmit fallback (no attachments, but includes all data in email body) ---
 async function sendFormSubmitFallback(data, hasResume, smtpErrorMsg = '') {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
     const res = await fetch('https://formsubmit.co/ajax/inquiries@thevineluxuries.com', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
+      signal: controller.signal,
       body: JSON.stringify({
         _subject: `New Employment Application - The Vine Luxuries LLC - ${data.fullName}`,
         _template: 'table',
@@ -188,6 +192,7 @@ async function sendFormSubmitFallback(data, hasResume, smtpErrorMsg = '') {
         '30. Resume Uploaded': hasResume ? 'Yes (see admin dashboard for full details)' : 'No',
       }),
     });
+    clearTimeout(timeoutId);
     const result = await res.json();
     if (result.success === 'false') {
       console.error('FormSubmit fallback error:', result.message);
