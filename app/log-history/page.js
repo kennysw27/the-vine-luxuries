@@ -233,6 +233,52 @@ export default function LogHistoryPage() {
     doc.save("Vine_Luxuries_Logs.pdf");
   };
 
+  const downloadIndividualLogPDF = (log) => {
+    const doc = new jsPDF();
+    
+    // Branding Header
+    doc.setTextColor(212, 175, 55); // Gold
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("THE VINE LUXURIES", 105, 20, { align: "center" });
+    
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.text("Where Excellence Meets Hospitality", 105, 27, { align: "center" });
+    
+    // Title
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("VISITOR LOG ENTRY", 105, 40, { align: "center" });
+    
+    doc.setLineWidth(0.5);
+    doc.line(20, 45, 190, 45);
+
+    doc.autoTable({
+      startY: 55,
+      head: [['Field', 'Details']],
+      body: [
+        ['Date & Time', new Date(log.dateTime).toLocaleString()],
+        ['Visitor/Vendor Name', log.visitorName],
+        ['Person / Unit Visiting', log.unitNumber],
+        ['Reason for Visit', log.visitType],
+        ['Logged By (Employee)', log.conciergeName],
+        ['Notes / Comments', log.comments || 'None'],
+      ],
+      theme: 'grid',
+      styles: { fontSize: 11, cellPadding: 5 },
+      columnStyles: { 
+        0: { fontStyle: 'bold', cellWidth: 60, fillColor: [250, 249, 245] },
+        1: { cellWidth: 'auto' }
+      }
+    });
+
+    // Save/Download directly
+    doc.save(`Vine-Luxuries-Visitor-${log.visitorName.replace(/\s+/g, '-')}.pdf`);
+  };
+
   const openModal = (mode, log = null) => {
     setModalMode(mode);
     if (mode === 'edit' && log) {
@@ -543,6 +589,7 @@ export default function LogHistoryPage() {
                       <td>{log.conciergeName}</td>
                       <td>{log.comments || '-'}</td>
                       <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <button onClick={() => downloadIndividualLogPDF(log)} className={styles.actionBtn}>Download PDF</button>
                         <button onClick={() => openModal('edit', log)} className={styles.actionBtn}>Edit</button>
                         <button onClick={() => handleDelete(log.id)} className={`${styles.actionBtn} ${styles.deleteBtn}`}>Delete</button>
                       </td>
