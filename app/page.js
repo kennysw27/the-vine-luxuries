@@ -18,15 +18,8 @@ export default function HomePage() {
               <Link href="/services" className="btn-primary" style={{ padding: '1rem 2.5rem' }}>
                 <span>Explore Services</span>
               </Link>
-              <Link href="/contact" className="btn-outline" style={{ padding: '1rem 2.5rem' }}>
-                Request a Booking
-              </Link>
             </div>
           </div>
-        </div>
-        <div className={styles.scrollIndicator}>
-          <Mouse size={24} strokeWidth={1} />
-          <ChevronDown size={16} />
         </div>
       </section>
 
