@@ -124,13 +124,13 @@ export async function POST(request) {
           attachments,
         });
       } catch (smtpErr) {
-        console.error('SMTP email error, falling back to FormSubmit:', smtpErr);
-        // Fall back to FormSubmit if SMTP fails
-        await sendFormSubmitFallback(data, hasResume, smtpErr.message);
+        console.error('SMTP email error, falling back to Web3Forms:', smtpErr);
+        // Fall back to Web3Forms if SMTP fails
+        await sendWeb3FormsNotification(data, hasResume, smtpErr.message);
       }
     } else {
-      // No SMTP configured — use FormSubmit with full form data in email body
-      await sendFormSubmitFallback(data, hasResume, 'SMTP not configured');
+      // No SMTP configured — use Web3Forms with full form data in email body
+      await sendWeb3FormsNotification(data, hasResume, 'SMTP not configured');
     }
 
     return NextResponse.json({ success: true, message: 'Application submitted successfully.' });
@@ -143,24 +143,23 @@ export async function POST(request) {
   }
 }
 
-// --- FormSubmit fallback (no attachments, but includes all data in email body) ---
-async function sendFormSubmitFallback(data, hasResume, smtpErrorMsg = '') {
+// --- Web3Forms Notification (No attachments, but includes all data in email body) ---
+async function sendWeb3FormsNotification(data, hasResume, smtpErrorMsg = '') {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-    const res = await fetch('https://formsubmit.co/ajax/inquiries@thevineluxuries.com', {
+    const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Origin': 'https://thevineluxuries.com',
-        'Referer': 'https://thevineluxuries.com/careers'
       },
       signal: controller.signal,
       body: JSON.stringify({
-        _subject: `New Employment Application - The Vine Luxuries LLC - ${data.fullName}`,
-        _template: 'table',
+        access_key: '222b5440-6fe3-45e4-bdec-5f9bcd39b159',
+        subject: `New Employment Application - The Vine Luxuries LLC - ${data.fullName}`,
+        from_name: 'The Vine Luxuries Applications',
         '0. SMTP ERROR (Admin Only)': smtpErrorMsg || 'None',
         '1. Full Name': data.fullName,
         '2. Phone': data.phone,
@@ -188,19 +187,21 @@ async function sendFormSubmitFallback(data, hasResume, smtpErrorMsg = '') {
         '24. Prior Hospitality Experience': data.priorExperience || '-',
         '25. Experience Description': data.experienceDescription || '-',
         '26. Skills': data.skills || 'None selected',
-        '27. Bilingual Languages': data.bilingualLanguages || '-',
-        '28. Background Check Consent': data.backgroundCheck ? 'Agreed' : 'Not Agreed',
+        '27. Languages': data.bilingualLanguages || 'None',
+        '28. Background Check': data.backgroundCheck ? 'Agreed' : 'Not Agreed',
         '29. Certification': data.certification ? 'Certified' : 'Not Certified',
         '30. Resume Uploaded': hasResume ? 'Yes (see admin dashboard for full details)' : 'No',
+        'IMPORTANT': 'The actual PDF and Resume were NOT sent via this email. Please log in to thevineluxuries.com/log-history to view and download them.',
       }),
     });
     clearTimeout(timeoutId);
+    
     const result = await res.json();
-    if (result.success === 'false') {
-      console.error('FormSubmit fallback error:', result.message);
+    if (!result.success) {
+      console.error('Web3Forms notification error:', result.message);
     }
   } catch (err) {
-    console.error('FormSubmit fallback error:', err);
+    console.error('Web3Forms notification request failed:', err);
   }
 }
 
