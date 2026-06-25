@@ -676,19 +676,47 @@ export default function LogHistoryPage() {
                     {/* Documents */}
                     <div className={styles.detailSection}>
                       <h4 className={styles.detailSectionTitle}>Attached Documents</h4>
-                      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
                         {app.applicationPdfBase64 ? (
-                          <a href={app.applicationPdfBase64} download={`The-Vine-Luxuries-Application-${app.fullName.replace(/\s+/g, '-')}.pdf`} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block' }}>
-                            Download App PDF
-                          </a>
+                          <button 
+                            onClick={() => {
+                              const base64 = app.applicationPdfBase64.split(',')[1] || app.applicationPdfBase64;
+                              const byteChars = atob(base64);
+                              const byteArray = new Uint8Array(byteChars.length);
+                              for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
+                              const blob = new Blob([byteArray], { type: 'application/pdf' });
+                              const url = URL.createObjectURL(blob);
+                              window.open(url, '_blank');
+                              setTimeout(() => URL.revokeObjectURL(url), 10000);
+                            }}
+                            className="btn-primary" 
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', cursor: 'pointer', border: 'none' }}
+                          >
+                            View / Download App PDF
+                          </button>
                         ) : (
                           <span style={{ color: '#888', fontSize: '0.9rem', padding: '0.5rem 0' }}>No PDF stored</span>
                         )}
                         
                         {app.resumeFileBase64 ? (
-                          <a href={app.resumeFileBase64} download={`Resume-${app.fullName.replace(/\s+/g, '-')}`} className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block' }}>
-                            Download Resume
-                          </a>
+                          <button 
+                            onClick={() => {
+                              const base64 = app.resumeFileBase64.split(',')[1] || app.resumeFileBase64;
+                              const mimeMatch = app.resumeFileBase64.match(/^data:(.*?);/);
+                              const mime = mimeMatch ? mimeMatch[1] : 'application/pdf';
+                              const byteChars = atob(base64);
+                              const byteArray = new Uint8Array(byteChars.length);
+                              for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
+                              const blob = new Blob([byteArray], { type: mime });
+                              const url = URL.createObjectURL(blob);
+                              window.open(url, '_blank');
+                              setTimeout(() => URL.revokeObjectURL(url), 10000);
+                            }}
+                            className="btn-secondary" 
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', cursor: 'pointer', border: 'none' }}
+                          >
+                            View / Download Resume
+                          </button>
                         ) : (
                           <span style={{ color: '#888', fontSize: '0.9rem', padding: '0.5rem 0' }}>No Resume uploaded</span>
                         )}
