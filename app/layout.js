@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import CookieBanner from "@/components/layout/CookieBanner";
 
 export const metadata = {
   title: "The Vine Luxuries | Premium Front Desk Concierge Services",
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
           {children}
         </main>
         <Footer />
+        <CookieBanner />
       </body>
     </html>
   );

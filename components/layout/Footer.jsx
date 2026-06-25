@@ -17,6 +17,9 @@ export function Footer() {
           <Link href="/careers" style={{ color: 'var(--color-white)', fontSize: '0.9rem' }}>Join Our Team</Link>
           <Link href="/contact" style={{ color: 'var(--color-white)', fontSize: '0.9rem' }}>Contact</Link>
         </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <Link href="/privacy" style={{ color: '#888', fontSize: '0.8rem', textDecoration: 'underline' }}>Privacy Policy</Link>
+        </div>
         <div style={{ fontSize: '0.8rem', color: '#888' }}>
           &copy; {new Date().getFullYear()} The Vine Luxuries. All rights reserved.
         </div>
