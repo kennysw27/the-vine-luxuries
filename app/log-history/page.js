@@ -20,6 +20,19 @@ export default function LogHistoryPage() {
   // Applications State
   const [applications, setApplications] = useState([]);
   const [expandedApp, setExpandedApp] = useState(null);
+  const [selectedApps, setSelectedApps] = useState([]);
+
+  const toggleAppSelection = (id) => {
+    setSelectedApps(prev => prev.includes(id) ? prev.filter(appId => appId !== id) : [...prev, id]);
+  };
+
+  const toggleAllApps = () => {
+    if (selectedApps.length === applications.length) {
+      setSelectedApps([]);
+    } else {
+      setSelectedApps(applications.map(app => app.id));
+    }
+  };
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -293,6 +306,7 @@ export default function LogHistoryPage() {
         const res = await fetch(`/api/applications/${id}`, { method: 'DELETE' });
         if (res.ok) {
           setExpandedApp(null);
+          setSelectedApps(prev => prev.filter(appId => appId !== id));
           fetchApplications();
         } else {
           alert("Failed to delete application");
@@ -300,6 +314,23 @@ export default function LogHistoryPage() {
       } catch (error) {
         console.error(error);
         alert("Error deleting application");
+      }
+    }
+  };
+
+  const deleteSelectedApplications = async () => {
+    if (selectedApps.length === 0) return;
+    if (window.confirm(`Are you sure you want to delete ${selectedApps.length} selected applications? This cannot be undone.`)) {
+      try {
+        // Run deletions in parallel
+        await Promise.all(selectedApps.map(id => fetch(`/api/applications/${id}`, { method: 'DELETE' })));
+        setExpandedApp(null);
+        setSelectedApps([]);
+        fetchApplications();
+      } catch (error) {
+        console.error(error);
+        alert("Error deleting some applications");
+        fetchApplications();
       }
     }
   };
@@ -492,12 +523,28 @@ export default function LogHistoryPage() {
           <>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
               <button onClick={exportApplicationsCSV} className="btn-outline-dark" style={{ padding: '0.8rem 1.5rem' }}>Export Applications CSV</button>
+              {selectedApps.length > 0 && (
+                <button 
+                  onClick={deleteSelectedApplications} 
+                  className="btn-primary" 
+                  style={{ padding: '0.8rem 1.5rem', backgroundColor: '#dc3545', borderColor: '#dc3545', color: '#fff' }}
+                >
+                  Delete Selected ({selectedApps.length})
+                </button>
+              )}
             </div>
 
             <div className={styles.tableWrapper}>
               <table className="admin-table">
                 <thead>
                   <tr>
+                    <th style={{ width: '40px' }}>
+                      <input 
+                        type="checkbox" 
+                        onChange={toggleAllApps} 
+                        checked={applications.length > 0 && selectedApps.length === applications.length} 
+                      />
+                    </th>
                     <th>Date</th>
                     <th>Name</th>
                     <th>Position</th>
@@ -509,7 +556,14 @@ export default function LogHistoryPage() {
                 </thead>
                 <tbody>
                   {applications.map(app => (
-                    <tr key={app.id}>
+                    <tr key={app.id} style={{ backgroundColor: selectedApps.includes(app.id) ? 'rgba(220, 53, 69, 0.05)' : 'transparent' }}>
+                      <td style={{ textAlign: 'center' }}>
+                        <input 
+                          type="checkbox" 
+                          onChange={() => toggleAppSelection(app.id)} 
+                          checked={selectedApps.includes(app.id)} 
+                        />
+                      </td>
                       <td>{new Date(app.createdAt).toLocaleDateString()}</td>
                       <td style={{ fontWeight: 500 }}>{app.fullName}</td>
                       <td>{app.position}</td>
@@ -537,7 +591,7 @@ export default function LogHistoryPage() {
                   ))}
                   {applications.length === 0 && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No applications received yet.</td>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No applications received yet.</td>
                     </tr>
                   )}
                 </tbody>
