@@ -157,8 +157,8 @@ export default function EmployeeVisitorLogPage() {
           </button>
         </div>
 
-        <div className={styles.grid}>
-          <div className={styles.formBox} style={{ margin: '0 auto', width: '100%' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div className={styles.formBox} style={{ width: '100%' }}>
             
             <div className={styles.formHeader}>
               <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', margin: 0 }}>New Log Entry</h2>
