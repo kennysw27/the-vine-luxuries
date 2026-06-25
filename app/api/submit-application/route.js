@@ -154,6 +154,8 @@ async function sendFormSubmitFallback(data, hasResume, smtpErrorMsg = '') {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Origin': 'https://thevineluxuries.com',
+        'Referer': 'https://thevineluxuries.com/careers'
       },
       signal: controller.signal,
       body: JSON.stringify({
