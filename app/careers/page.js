@@ -231,6 +231,31 @@ export default function CareersPage() {
         throw new Error(result.error || 'Submission failed');
       }
 
+      // Send email notification via Web3Forms from the browser (bypasses server firewall)
+      try {
+        await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            access_key: '222b5440-6fe3-45e4-bdec-5f9bcd39b159',
+            subject: `New Employment Application - The Vine Luxuries LLC - ${data.fullName}`,
+            from_name: 'The Vine Luxuries Applications',
+            'Full Name': data.fullName,
+            'Phone': data.phone,
+            'Email': data.email,
+            'Address': `${data.address}, ${data.city}, ${data.state} ${data.zip}`,
+            'Position': data.position || '-',
+            'Authorized': data.authorized,
+            '18+': data.eighteenPlus,
+            'Desired Pay': data.desiredPay || '-',
+            'Resume Uploaded': selectedFile ? 'Yes' : 'No',
+            'NOTE': 'Log in to thevineluxuries.com/log-history to view the full application PDF and resume.',
+          }),
+        });
+      } catch (emailErr) {
+        console.warn('Email notification failed (non-critical):', emailErr);
+      }
+
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
