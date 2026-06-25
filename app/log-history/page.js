@@ -230,11 +230,7 @@ export default function LogHistoryPage() {
       ])
     });
     
-    // iOS Safari Fix
-    const blob = doc.output('blob');
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    doc.save("Vine_Luxuries_Logs.pdf");
   };
 
   const downloadIndividualLogPDF = (log) => {
@@ -279,11 +275,7 @@ export default function LogHistoryPage() {
       }
     });
 
-    // iOS Safari Fix
-    const blob = doc.output('blob');
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    doc.save(`Vine-Luxuries-Visitor-${log.visitorName.replace(/\s+/g, '-')}.pdf`);
   };
 
   const openModal = (mode, log = null) => {
