@@ -34,6 +34,23 @@ export default function LogHistoryPage() {
     }
   };
 
+  // Consultations State
+  const [consultations, setConsultations] = useState([]);
+  const [expandedConsult, setExpandedConsult] = useState(null);
+  const [selectedConsults, setSelectedConsults] = useState([]);
+
+  const toggleConsultSelection = (id) => {
+    setSelectedConsults(prev => prev.includes(id) ? prev.filter(cId => cId !== id) : [...prev, id]);
+  };
+
+  const toggleAllConsults = () => {
+    if (selectedConsults.length === consultations.length) {
+      setSelectedConsults([]);
+    } else {
+      setSelectedConsults(consultations.map(c => c.id));
+    }
+  };
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
@@ -79,11 +96,28 @@ export default function LogHistoryPage() {
     }
   };
 
+  const fetchConsultations = async () => {
+    try {
+      const res = await fetch('/api/consultations');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setConsultations(data);
+      } else {
+        console.error("API returned error:", data);
+        setConsultations([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch consultations", error);
+      setConsultations([]);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined' && sessionStorage.getItem("vine_admin_auth") === "true") {
       setIsAuthenticated(true);
       fetchLogs();
       fetchApplications();
+      fetchConsultations();
     }
   }, []);
 
@@ -101,6 +135,7 @@ export default function LogHistoryPage() {
         setIsAuthenticated(true);
         fetchLogs();
         fetchApplications();
+        fetchConsultations();
       } else {
         alert("Incorrect password");
       }
@@ -445,6 +480,12 @@ export default function LogHistoryPage() {
           >
             Job Applications ({applications.length})
           </button>
+          <button 
+            className={`${styles.tab} ${activeTab === 'consultations' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('consultations')}
+          >
+            Consultations ({consultations.length})
+          </button>
         </div>
 
         {/* ===== VISITOR LOGS TAB ===== */}
@@ -719,6 +760,168 @@ export default function LogHistoryPage() {
                           </button>
                         ) : (
                           <span style={{ color: '#888', fontSize: '0.9rem', padding: '0.5rem 0' }}>No Resume uploaded</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </>
+        )}
+
+        {/* ===== CONSULTATIONS TAB ===== */}
+        {activeTab === 'consultations' && (
+          <>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+              {selectedConsults.length > 0 && (
+                <button 
+                  onClick={async () => {
+                    if (window.confirm(`Delete ${selectedConsults.length} selected consultations? This cannot be undone.`)) {
+                      try {
+                        await Promise.all(selectedConsults.map(id => fetch(`/api/consultations/${id}`, { method: 'DELETE' })));
+                        setExpandedConsult(null);
+                        setSelectedConsults([]);
+                        fetchConsultations();
+                      } catch (err) { console.error(err); alert('Error deleting'); fetchConsultations(); }
+                    }
+                  }}
+                  className="btn-primary" 
+                  style={{ padding: '0.8rem 1.5rem', backgroundColor: '#dc3545', borderColor: '#dc3545', color: '#fff' }}
+                >
+                  Delete Selected ({selectedConsults.length})
+                </button>
+              )}
+            </div>
+
+            <div className={styles.tableWrapper}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '40px' }}>
+                      <input 
+                        type="checkbox" 
+                        onChange={toggleAllConsults} 
+                        checked={consultations.length > 0 && selectedConsults.length === consultations.length} 
+                      />
+                    </th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {consultations.map(c => (
+                    <tr key={c.id} style={{ backgroundColor: selectedConsults.includes(c.id) ? 'rgba(220, 53, 69, 0.05)' : 'transparent' }}>
+                      <td style={{ textAlign: 'center' }}>
+                        <input 
+                          type="checkbox" 
+                          onChange={() => toggleConsultSelection(c.id)} 
+                          checked={selectedConsults.includes(c.id)} 
+                        />
+                      </td>
+                      <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                      <td style={{ fontWeight: 500 }}>{c.name}</td>
+                      <td>{c.propertyName}</td>
+                      <td>{c.propertyType}</td>
+                      <td><a href={`mailto:${c.email}`} style={{ color: 'var(--color-gold-500)' }}>{c.email}</a></td>
+                      <td>
+                        <select
+                          className={styles.statusSelect}
+                          value={c.status}
+                          onChange={async (e) => {
+                            try {
+                              const res = await fetch(`/api/consultations/${c.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: e.target.value }),
+                              });
+                              if (res.ok) fetchConsultations();
+                              else alert('Failed to update status');
+                            } catch (err) { console.error(err); alert('Error updating'); }
+                          }}
+                        >
+                          <option value="New">New</option>
+                          <option value="Reviewed">Reviewed</option>
+                          <option value="Contacted">Contacted</option>
+                          <option value="Closed">Closed</option>
+                        </select>
+                      </td>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <button onClick={() => setExpandedConsult(expandedConsult === c.id ? null : c.id)} className={styles.actionBtn}>
+                          {expandedConsult === c.id ? 'Close' : 'View'}
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (window.confirm('Delete this consultation? This cannot be undone.')) {
+                              try {
+                                const res = await fetch(`/api/consultations/${c.id}`, { method: 'DELETE' });
+                                if (res.ok) { setExpandedConsult(null); setSelectedConsults(prev => prev.filter(cId => cId !== c.id)); fetchConsultations(); }
+                                else alert('Failed to delete');
+                              } catch (err) { console.error(err); alert('Error deleting'); }
+                            }
+                          }} 
+                          className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                        >Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {consultations.length === 0 && (
+                    <tr>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>No consultation requests received yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              {/* Expanded Consultation Detail */}
+              {expandedConsult && (() => {
+                const c = consultations.find(x => x.id === expandedConsult);
+                if (!c) return null;
+                return (
+                  <div className={styles.detailPanel} style={{ marginTop: '2rem' }}>
+                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', marginBottom: '0.5rem' }}>{c.name}</h3>
+                    <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '2rem' }}>Submitted {new Date(c.createdAt).toLocaleString()}</p>
+
+                    <div className={styles.detailGrid}>
+                      <div><p className={styles.detailLabel}>Email</p><p className={styles.detailValue}>{c.email}</p></div>
+                      <div><p className={styles.detailLabel}>Phone</p><p className={styles.detailValue}>{c.phone}</p></div>
+                      <div><p className={styles.detailLabel}>Property Name</p><p className={styles.detailValue}>{c.propertyName}</p></div>
+                      <div><p className={styles.detailLabel}>Property Type</p><p className={styles.detailValue}>{c.propertyType}</p></div>
+                    </div>
+
+                    <div className={styles.detailSection}>
+                      <h4 className={styles.detailSectionTitle}>Message</h4>
+                      <p className={styles.detailValue} style={{ whiteSpace: 'pre-wrap' }}>{c.message}</p>
+                    </div>
+
+                    {/* PDF Download */}
+                    <div className={styles.detailSection}>
+                      <h4 className={styles.detailSectionTitle}>Consultation PDF</h4>
+                      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        {c.pdfBase64 ? (
+                          <button 
+                            onClick={() => {
+                              const base64 = c.pdfBase64.split(',')[1] || c.pdfBase64;
+                              const byteChars = atob(base64);
+                              const byteArray = new Uint8Array(byteChars.length);
+                              for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
+                              const blob = new Blob([byteArray], { type: 'application/pdf' });
+                              const url = URL.createObjectURL(blob);
+                              window.open(url, '_blank');
+                              setTimeout(() => URL.revokeObjectURL(url), 10000);
+                            }}
+                            className="btn-primary" 
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', cursor: 'pointer', border: 'none' }}
+                          >
+                            View / Download PDF
+                          </button>
+                        ) : (
+                          <span style={{ color: '#888', fontSize: '0.9rem' }}>No PDF stored</span>
                         )}
                       </div>
                     </div>

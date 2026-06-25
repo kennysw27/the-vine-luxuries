@@ -60,3 +60,17 @@ model JobApplication {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }
+
+model Consultation {
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  phone           String
+  propertyName    String
+  propertyType    String
+  message         String
+  pdfBase64       String?
+  status          String   @default("New")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

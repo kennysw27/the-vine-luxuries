@@ -7,91 +7,135 @@ import styles from './contact.module.css';
 
 export default function ContactPage() {
   const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError('');
+    setIsSubmitting(true);
     
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
     try {
+      // Generate Branded PDF for the Inquiry
+      const doc = new jsPDF();
+      
+      // Add Branding Header
+      doc.setTextColor(212, 175, 55); // Gold color
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("THE VINE LUXURIES", 105, 20, { align: "center" });
+      
+      doc.setTextColor(100, 100, 100);
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(10);
+      doc.text("Where Excellence Meets Hospitality", 105, 27, { align: "center" });
+      
+      // Title
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("NEW INQUIRY / CONSULTATION REQUEST", 105, 40, { align: "center" });
+      
+      doc.setLineWidth(0.5);
+      doc.line(20, 45, 190, 45);
 
-    // Generate Branded PDF for the Inquiry
-    const doc = new jsPDF();
-    
-    // Add Branding Header
-    doc.setTextColor(212, 175, 55); // Gold color
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.text("THE VINE LUXURIES", 105, 20, { align: "center" });
-    
-    doc.setTextColor(100, 100, 100);
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(10);
-    doc.text("Where Excellence Meets Hospitality", 105, 27, { align: "center" });
-    
-    // Title
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("NEW INQUIRY / CONSULTATION REQUEST", 105, 40, { align: "center" });
-    
-    doc.setLineWidth(0.5);
-    doc.line(20, 45, 190, 45);
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(`Submitted Date: ${new Date().toLocaleString()}`, 20, 52);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(`Submitted Date: ${new Date().toLocaleString()}`, 20, 52);
 
       // Document Body
       autoTable(doc, {
         startY: 60,
         head: [['Field', 'Details']],
-      body: [
-        ['Full Name', data.name],
-        ['Email Address', data.email],
-        ['Phone Number', data.phone],
-        ['Property Name', data.propertyName],
-        ['Property Type', data.propertyType],
-        ['Message', data.message],
-      ],
-      theme: 'grid',
-      styles: { fontSize: 10, cellPadding: 4 },
-      columnStyles: { 
-        0: { fontStyle: 'bold', cellWidth: 50, fillColor: [250, 249, 245] },
-        1: { cellWidth: 'auto' }
-      }
-    });
-
-    const pdfBlob = doc.output('blob');
-    const pdfFile = new File([pdfBlob], `The-Vine-Luxuries-Inquiry-${data.name.replace(/\s+/g, '-')}.pdf`, { type: 'application/pdf' });
-
-      // Send via FormSubmit using FormData (multipart/form-data)
-      const emailData = new FormData();
-      emailData.append('_subject', `New Inquiry/Consultation - The Vine Luxuries LLC - ${data.name}`);
-      emailData.append('Message', `A new inquiry has been submitted through The Vine Luxuries LLC website.\n\nThe complete inquiry details are attached as a PDF.`);
-      emailData.append('Sender_Name', data.name);
-      emailData.append('Property_Name', data.propertyName);
-      emailData.append('Inquiry_PDF', pdfFile);
-
-      const emailRes = await fetch("https://formsubmit.co/ajax/inquiries@thevineluxuries.com", {
-        method: "POST",
-        headers: {
-          'Accept': 'application/json'
-        },
-        body: emailData,
+        body: [
+          ['Full Name', data.name],
+          ['Email Address', data.email],
+          ['Phone Number', data.phone],
+          ['Property Name', data.propertyName],
+          ['Property Type', data.propertyType],
+          ['Message', data.message],
+        ],
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 4 },
+        columnStyles: { 
+          0: { fontStyle: 'bold', cellWidth: 50, fillColor: [250, 249, 245] },
+          1: { cellWidth: 'auto' }
+        }
       });
 
-      if (!emailRes.ok) throw new Error('Email submission failed');
+      // Convert PDF to Base64
+      const pdfBase64 = doc.output('datauristring');
 
-      alert("Thank you for your inquiry. Our team will contact you shortly.");
-      e.target.reset();
+      // Save to database
+      const res = await fetch('/api/consultations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          propertyName: data.propertyName,
+          propertyType: data.propertyType,
+          message: data.message,
+          pdfBase64: pdfBase64,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to save consultation');
+
+      // Send email notification via Web3Forms from the browser
+      try {
+        await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            access_key: '222b5440-6fe3-45e4-bdec-5f9bcd39b159',
+            subject: `New Consultation Request - The Vine Luxuries LLC - ${data.name}`,
+            from_name: 'The Vine Luxuries Inquiries',
+            'Full Name': data.name,
+            'Email': data.email,
+            'Phone': data.phone,
+            'Property Name': data.propertyName,
+            'Property Type': data.propertyType,
+            'Message': data.message,
+            'NOTE': 'Log in to thevineluxuries.com/log-history to view and download the full consultation PDF.',
+          }),
+        });
+      } catch (emailErr) {
+        console.warn('Email notification failed (non-critical):', emailErr);
+      }
+
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
     } catch(error) {
       console.error(error);
-      setSubmitError("There was an error generating or sending your message. Please try again.");
+      setSubmitError("There was an error submitting your request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  if (submitted) {
+    return (
+      <main className={styles.pageWrapper}>
+        <div className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem', textAlign: 'center' }}>
+          <div style={{ maxWidth: '600px', margin: '0 auto', background: 'rgba(255,255,255,0.95)', padding: '3rem', borderRadius: '12px' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--color-gold-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.8rem', marginBottom: '1rem' }}>Thank You for Your Inquiry</h2>
+            <p style={{ color: '#666', lineHeight: 1.7 }}>
+              Your consultation request has been received. Our team will review your information and contact you shortly to discuss tailored concierge solutions for your property.
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.pageWrapper}>
@@ -101,7 +145,7 @@ export default function ContactPage() {
           <div>
             <h1 className={styles.title}>Request a<br />Consultation</h1>
             <p className={styles.subtitle}>
-              Elevate your property’s experience. Contact us today to discuss tailored concierge solutions for your luxury residence.
+              Elevate your property's experience. Contact us today to discuss tailored concierge solutions for your luxury residence.
             </p>
 
             <div className={styles.contactInfo}>
@@ -166,7 +210,9 @@ export default function ContactPage() {
               )}
               
               <div style={{ marginTop: '2rem' }}>
-                <button type="submit" className="btn-primary" style={{ width: '100%' }}>Send Message</button>
+                <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </button>
               </div>
             </form>
           </div>
