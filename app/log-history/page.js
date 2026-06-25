@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { Eye, EyeOff } from 'lucide-react';
 import styles from './history.module.css';
 
@@ -217,7 +217,7 @@ export default function LogHistoryPage() {
     const doc = new jsPDF();
     doc.text("The Vine Luxuries - Visitor Log", 14, 15);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: 20,
       head: [['Date/Time', 'Unit', 'Name', 'Type', 'Concierge', 'Notes']],
       body: logs.map(l => [
@@ -260,7 +260,7 @@ export default function LogHistoryPage() {
     doc.setLineWidth(0.5);
     doc.line(20, 45, 190, 45);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 55,
       head: [['Field', 'Details']],
       body: [
